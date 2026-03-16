@@ -35,6 +35,11 @@ app.use('/api/stalls', require('./routes/stalls'));
 
 
 // Start Server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port: ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port: ${PORT}`);
+  });
+}
+
+module.exports = app;
+
