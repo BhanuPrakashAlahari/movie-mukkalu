@@ -15,10 +15,24 @@ app.use(cors({
 app.use(express.json());
 
 // MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/movie_mukkalu';
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Could not connect to MongoDB:', err));
+const MONGODB_URI = process.env.MONGODB_URI;
+
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return;
+  
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log('Connected to MongoDB');
+  } catch (err) {
+    console.error('Could not connect to MongoDB:', err);
+  }
+};
+
+// Middleware to ensure DB is connected
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 // Basic Health Check Route
 app.get('/', (req, res) => {
@@ -30,8 +44,17 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is healthy' });
 });
 
+app.get('/api/test-db', (req, res) => {
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  res.json({ 
+    state: states[mongoose.connection.readyState],
+    hasUri: !!process.env.MONGODB_URI 
+  });
+});
+
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/stalls', require('./routes/stalls'));
+
 
 
 // Start Server
