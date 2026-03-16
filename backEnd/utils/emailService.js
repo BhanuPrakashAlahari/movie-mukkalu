@@ -3,14 +3,20 @@ const nodemailer = require('nodemailer');
 const sendBookingEmail = async (bookingDetails) => {
   const { name, email, dateId, showTime, seats, totalPrice } = bookingDetails;
 
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.error('❌ EMAIL_USER or EMAIL_PASS environment variables are missing!');
+      return;
+  }
+
   // Create a transporter
   const transporter = nodemailer.createTransport({
-    service: 'gmail', // You can change this to your preferred email service
+    service: 'gmail',
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
   });
+
 
   const mailOptions = {
     from: `"Movie Mukkalu" <${process.env.EMAIL_USER}>`,
