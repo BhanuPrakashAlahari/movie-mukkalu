@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const TicketBooking = require('../models/Booking');
+const { sendBookingEmail } = require('../utils/emailService');
+
 
 // Get all booked seats for a specific show
 router.get('/:dateId/:showTime', async (req, res) => {
@@ -47,7 +49,12 @@ router.post('/', async (req, res) => {
     }
 
     const newBooking = await booking.save();
+    
+    // Send confirmation email
+    await sendBookingEmail(newBooking);
+    
     res.status(201).json(newBooking);
+
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
