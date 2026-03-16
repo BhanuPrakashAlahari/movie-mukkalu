@@ -31,6 +31,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/bookings', require('./routes/bookings'));
+app.use('/api/stalls', require('./routes/stalls'));
+
 
 // Start Server
 app.listen(PORT, '0.0.0.0', () => {

@@ -17,22 +17,33 @@ const SeatBooking = () => {
   
   const pricePerTicket = 100;
 
+  const fetchBookings = async (showLoading = true) => {
+    try {
+      if (showLoading) setIsLoading(true);
+      const booked = await getBookedSeats(dateId, showTime);
+      setAlreadyBooked(booked);
+    } catch (error) {
+      console.error('Failed to fetch bookings:', error);
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        setIsLoading(true);
-        // This API call happens according to the selected show (date and time)
-        const booked = await getBookedSeats(dateId, showTime);
-        setAlreadyBooked(booked);
-      } catch (error) {
-        console.error('Failed to fetch bookings:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
     fetchBookings();
+    
+    // Auto refresh every 1 minute
+    const intervalId = setInterval(() => {
+      fetchBookings(false); // Don't show loading spinner for auto-refresh
+    }, 60000);
+
+    return () => clearInterval(intervalId);
   }, [dateId, showTime]);
+
+  const handleManualRefresh = () => {
+    fetchBookings();
+  };
+
 
   const handleSeatClick = (seatId) => {
     if (alreadyBooked.includes(seatId)) return;
@@ -100,12 +111,20 @@ const SeatBooking = () => {
         <div className="flex flex-col items-center justify-start min-h-full">
           
           {/* Back Button */}
-          <div className="w-full px-8 pt-24 md:pt-28 flex justify-start">
+          <div className="w-full px-8 pt-32 md:pt-40 flex justify-between items-center relative z-[110]">
+
             <button 
               onClick={() => navigate('/booking')}
               className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors"
             >
               <i className="fas fa-chevron-left"></i> Back
+            </button>
+
+            <button 
+              onClick={handleManualRefresh}
+              className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-primary transition-colors group"
+            >
+              Refresh <i className={`fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500 ${isLoading ? 'animate-spin text-primary' : ''}`}></i>
             </button>
           </div>
 
@@ -160,10 +179,11 @@ const SeatBooking = () => {
                                   >
                                     {isBooked && (
                                         <div className="absolute inset-0 pointer-events-none">
-                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1px] bg-white/40 rotate-45"></div>
-                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1px] bg-white/40 -rotate-45"></div>
+                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[2px] bg-white/60 rotate-45"></div>
+                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[2px] bg-white/60 -rotate-45"></div>
                                         </div>
                                     )}
+
                                     
                                     <span className={`${isBooked ? 'opacity-20' : 'opacity-100'} font-black`}>{seatId}</span>
                                   </button>
@@ -192,11 +212,12 @@ const SeatBooking = () => {
                 </div>
                 <div className="flex items-center gap-3">
                    <div className="w-3 h-3 rounded bg-white/5 relative border border-white/10">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1px] bg-white/40 rotate-45"></div>
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1px] bg-white/40 -rotate-45"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1.5px] bg-white/60 rotate-45"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1.5px] bg-white/60 -rotate-45"></div>
                    </div>
                    <span className="text-[10px] font-black uppercase text-white">Sold</span>
                 </div>
+
               </div>
             </>
           )}
