@@ -3,48 +3,42 @@ import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
-    <section className="relative h-screen flex flex-col justify-center items-center text-center px-[6%] overflow-hidden bg-bg-main">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/10 blur-[150px] rounded-full pointer-events-none"></div>
-      
-      <div className="max-w-[1000px] z-10 animate-fade-up">
-        <div className="inline-flex items-center gap-2 px-4 py-2 mb-10 text-[10px] font-black tracking-[0.3em] uppercase text-primary border border-primary/20 rounded-full bg-primary/5">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-          </span>
-          Live Booking Available
+    <section className="relative h-screen flex flex-col items-center justify-center px-[6%] overflow-hidden bg-bg-main">
+      {/* Background Cinematic Glows */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/10 blur-[150px] rounded-full animate-pulse-slow"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full animate-pulse-slow delay-700"></div>
+
+      {/* Content */}
+      <div className="relative z-10 text-center max-w-5xl mx-auto">
+        <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-10 animate-fade-up">
+          <span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-glow"></span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">Currently Premiering March 2026</span>
         </div>
 
-        <h1 className="text-6xl md:text-[7.5rem] leading-[0.95] mb-8 text-gradient font-black">
-          THE ART OF <br /> 
-          <span className="italic font-display font-bold">CINEMA.</span>
+        <h1 className="text-6xl md:text-8xl lg:text-9xl font-black mb-8 animate-fade-up">
+          <span className="text-gradient block mb-4">THE FUTURE</span>
+          <span className="text-white italic font-display">OF CINEMA.</span>
         </h1>
 
-        <p className="text-lg md:text-xl text-text-muted mb-14 max-w-[700px] mx-auto font-medium leading-relaxed">
-          Elevate your movie-going experience. Seamless ticket booking and 
-          stall management wrapped in a premium, focused interface.
+        <p className="text-text-muted text-lg md:text-xl font-medium max-w-2xl mx-auto mb-14 leading-relaxed animate-fade-up delay-200">
+          Seamless movie booking and vendor management tailored for the ultimate entertainment experience.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-5 justify-center">
-          <Link
-            to="/booking"
-            className="group relative px-10 py-5 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(160,26,26,0.4)]"
-          >
-            <span className="relative z-10">Start Booking</span>
-            <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-fade-up delay-300">
+          <Link to="/booking" className="group relative px-12 py-5 bg-primary rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-glow hover:scale-105 active:scale-95">
+            <span className="relative z-10 text-[11px] font-black uppercase tracking-[0.3em] text-white">Start Booking</span>
           </Link>
-          <a
-            href="#about"
-            className="px-10 py-5 bg-white/5 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 hover:border-primary/50 transition-all duration-300"
-          >
-            Explore More
-          </a>
+
+          <Link to="/" className="px-12 py-5 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] text-white hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+            Register Stall
+          </Link>
         </div>
       </div>
 
-      {/* Side Vignette */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none shadow-[inset_0_0_200px_rgba(0,0,0,0.8)]"></div>
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce opacity-20">
+        <div className="w-px h-12 bg-gradient-to-b from-white to-transparent"></div>
+      </div>
     </section>
   );
 };
