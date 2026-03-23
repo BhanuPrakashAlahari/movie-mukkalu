@@ -13,25 +13,18 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "backEnd/server.js"
+      "source": "/api/(.*)",
+      "destination": "/backEnd/server.js"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "frontEnd/dist/assets/$1"
+      "source": "/assets/(.*)",
+      "destination": "/frontEnd/dist/assets/$1"
     },
     {
-      "src": "/favicon.svg",
-      "dest": "frontEnd/dist/favicon.svg"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontEnd/dist/index.html"
+      "source": "/(.*)",
+      "destination": "/frontEnd/dist/index.html"
     }
   ]
 }
