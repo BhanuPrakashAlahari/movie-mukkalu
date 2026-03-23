@@ -23,9 +23,9 @@ router.get('/:dateId/:showTime', async (req, res) => {
 
 // Create a new ticket booking
 router.post('/', async (req, res) => {
-  const { name, email, dateId, showTime, seats, totalPrice } = req.body;
+  const { name, email, dateId, showTime, displayTime, seats, totalPrice, movieName, poster } = req.body;
   
-  if (!name || !email || !dateId || !showTime || !seats || seats.length === 0) {
+  if (!name || !email || !dateId || !showTime || !displayTime || !seats || seats.length === 0 || !movieName) {
     return res.status(400).json({ message: "Missing required fields for booking." });
   }
 
@@ -34,8 +34,11 @@ router.post('/', async (req, res) => {
     email,
     dateId,
     showTime,
+    displayTime,
     seats,
-    totalPrice
+    totalPrice,
+    movieName,
+    poster
   });
 
   try {

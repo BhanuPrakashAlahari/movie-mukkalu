@@ -25,10 +25,9 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Book Tickets', path: '/booking' },
-    { name: 'Promotions', path: '#' },
+    { name: 'Promotions', path: '/promotions' },
     { name: 'Stalls', path: '/stalls' },
-
-    { name: 'Contact', path: '#' },
+    { name: 'Contact', path: '/contact' },
   ];
 
   return (
@@ -41,12 +40,9 @@ const Navbar = () => {
           : 'bg-transparent border-transparent'
       }`}>
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 md:w-10 md:h-10 bg-primary rounded-xl flex items-center justify-center text-xs text-white group-hover:shadow-glow transition-all duration-300">
-            <i className="fas fa-play ml-0.5"></i>
-          </div>
+        <Link to="/" className="flex items-center group">
           <span className="font-display text-xl md:text-2xl font-black tracking-tighter text-white">
-            MOVIE <span className="text-primary italic">MUKKALU</span>
+            Movie <span className="text-primary">Mokkalu</span>
           </span>
         </Link>
 

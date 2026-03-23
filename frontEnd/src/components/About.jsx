@@ -15,7 +15,7 @@ const About = () => {
             <span className="text-primary italic font-display font-bold underline decoration-white/10 underline-offset-8">Big Screen.</span>
           </h2>
           <p className="text-xl text-text-muted leading-[1.8] font-medium max-w-xl">
-            Movie Mukkalu is a dedicated platform designed to simplify theater management.
+            Movie Mokkalu is a dedicated platform designed to simplify theater management.
             From instant ticket reservations to digital stall registrations, we provide
             the tools needed for a modern cinema ecosystem.
           </p>

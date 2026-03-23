@@ -3,40 +3,34 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { MOVIES_DATA } from '../data/movies';
 
 const Booking = () => {
   const navigate = useNavigate();
   const dates = [
-    { id: 27, label: 'MARCH 27', full: 'March 27th, 2026' },
-    { id: 28, label: 'MARCH 28', full: 'March 28th, 2026' },
-    { id: 29, label: 'MARCH 29', full: 'March 29th, 2026' },
-    { id: 30, label: 'MARCH 30', full: 'March 30th, 2026' },
-  ];
-
-  const shows = [
-    { time: '10:00 AM - 1:00 PM', slug: '10-00-AM-01-00-PM', status: 'Available' },
-    { time: '1:15 PM - 4:15 PM', slug: '01-15-PM-04-15-PM', status: 'Fast Filling' },
-    { time: '4:30 PM - 7:00 PM', slug: '04-30-PM-07-00-PM', status: 'Available' },
+    { id: 27, label: 'MAY 27', full: 'May 27th, 2026' },
+    { id: 28, label: 'MAY 28', full: 'May 28th, 2026' },
+    { id: 29, label: 'MAY 29', full: 'May 29th, 2026' },
+    { id: 30, label: 'MAY 30', full: 'May 30th, 2026' },
   ];
 
   const [selectedDate, setSelectedDate] = useState(dates[0]);
+
+  const currentShows = MOVIES_DATA[selectedDate.id] || [];
 
   const handleSelectSeats = (showTimeSlug) => {
     navigate(`/booking/${selectedDate.id}/${showTimeSlug}`);
   };
 
   return (
-    <div className="min-h-screen bg-bg-main">
+    <div className="min-h-screen bg-bg-main selection:bg-primary selection:text-white">
       <Navbar />
-      
+
       <main className="pt-32 pb-20 px-[6%]">
         <div className="max-w-6xl mx-auto">
-          <header className="mb-12 text-center md:text-left">
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary block mb-4 animate-fade-up">
-              Step 01
-            </span>
+          <header className="mb-12 text-left">
             <h1 className="text-4xl md:text-6xl font-black text-gradient animate-fade-up">
-              SELECT <br /><span className="italic font-display">YOUR SHOW.</span>
+              Select <br /><span className="font-display">Your Show.</span>
             </h1>
           </header>
 
@@ -47,9 +41,8 @@ const Booking = () => {
                 <button
                   key={date.id}
                   onClick={() => setSelectedDate(date)}
-                  className={`relative py-4 text-[11px] md:text-sm font-black uppercase tracking-[0.2em] transition-colors duration-300 ${
-                    selectedDate.id === date.id ? 'text-white' : 'text-text-muted hover:text-white/60'
-                  }`}
+                  className={`relative py-4 text-[11px] md:text-sm font-black uppercase tracking-[0.2em] transition-colors duration-300 ${selectedDate.id === date.id ? 'text-white' : 'text-text-muted hover:text-white/60'
+                    }`}
                 >
                   {date.label}
                   {selectedDate.id === date.id && (
@@ -64,56 +57,50 @@ const Booking = () => {
             </div>
           </div>
 
-          {/* Show Times Grid with Animation */}
-          <motion.div 
-            layout
-            className="grid md:grid-cols-3 gap-8"
-          >
-            <AnimatePresence mode="wait">
-              {shows.map((show, index) => (
-                <motion.div
-                  key={`${selectedDate.id}-${index}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="group relative p-8 bg-bg-secondary/40 border border-white/[0.05] rounded-[2.5rem] hover:border-primary/40 hover:bg-bg-secondary transition-all duration-500"
-                >
-                  <div className="flex justify-between items-start mb-10">
-                    <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-primary">
-                      <i className="fas fa-clock"></i>
+          {/* Show Times Grid */}
+          <div className="grid md:grid-cols-3 gap-8">
+            {currentShows.map((movie, index) => (
+              <div
+                key={`${selectedDate.id}-${index}-${movie.name}`}
+                className="group relative p-6 bg-bg-secondary/40 border border-white/[0.05] rounded-xl transition-all duration-500 overflow-hidden"
+              >
+                {/* Poster Background */}
+                <div className="absolute inset-x-0 top-0 h-48 overflow-hidden">
+                  <img
+                    src={movie.poster}
+                    alt=""
+                    className="w-full h-full object-cover opacity-20 transition-transform duration-1000 blur-sm"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-bg-main/90"></div>
+                </div>
+
+                <div className="relative z-10 px-2 pt-4">
+
+                  <div className="mb-6 flex gap-4 items-center">
+                    <div className="w-20 h-28 rounded-xl overflow-hidden shadow-2xl border border-white/10 flex-shrink-0">
+                      <img src={movie.poster} alt={movie.name} className="w-full h-full object-cover" />
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                      show.status === 'Fast Filling' 
-                        ? 'text-orange-500 border-orange-500/20 bg-orange-500/5' 
-                        : 'text-green-500 border-green-500/20 bg-green-500/5'
-                    }`}>
-                      {show.status}
-                    </span>
+                    <div>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">Now Showing</p>
+                      <h3 className="text-lg font-black text-white tracking-tight leading-tight">{movie.name}</h3>
+                    </div>
                   </div>
 
-                  <div className="mb-8 p-6 bg-white/[0.02] border border-white/[0.03] rounded-2xl">
-                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2">Movie Listing</p>
-                      <h3 className="text-xl font-black text-white italic tracking-tight uppercase">Movie Name <span className="text-white/30">(TBA)</span></h3>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 mb-8">
                     <p className="text-text-muted text-[10px] font-bold uppercase tracking-widest">Show Time</p>
-                    <p className="text-white font-black text-xl">{show.time}</p>
+                    <p className="text-white font-black text-lg">{movie.time}</p>
                   </div>
 
-                  <button 
-                    onClick={() => handleSelectSeats(show.slug)}
-                    className="mt-10 w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-primary hover:border-primary hover:shadow-glow transition-all duration-300"
+                  <button
+                    onClick={() => handleSelectSeats(movie.slug)}
+                    className="w-full py-4 bg-primary border border-primary rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-white transition-all duration-300"
                   >
                     Select Seats
                   </button>
-
-                  <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/[0.03] rounded-[2.5rem] transition-colors pointer-events-none"></div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
 

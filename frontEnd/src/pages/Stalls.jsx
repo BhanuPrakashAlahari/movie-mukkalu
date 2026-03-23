@@ -63,12 +63,12 @@ const Stalls = () => {
 
             <main className="flex-1 pt-32 pb-20 px-[6%]">
                 <div className="max-w-6xl mx-auto">
-                    <header className="mb-12 text-center md:text-left">
+                    <header className="mb-12 text-left">
                         <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary block mb-4 animate-fade-up">
                             Partnerships
                         </span>
                         <h1 className="text-4xl md:text-6xl font-black text-gradient animate-fade-up">
-                            FOOD <br /><span className="italic font-display">STALLS.</span>
+                            Food <br /><span className="font-display">Stalls.</span>
                         </h1>
                     </header>
 
@@ -79,7 +79,7 @@ const Stalls = () => {
                             animate={{ opacity: 1, x: 0 }}
                             className="bg-bg-secondary/40 border border-white/10 p-8 md:p-10 rounded-[2.5rem] shadow-2xl backdrop-blur-xl"
                         >
-                            <h2 className="text-2xl font-black text-white italic mb-8 uppercase tracking-tight">Register New Stall</h2>
+                            <h2 className="text-2xl font-black text-white mb-8 tracking-tight">Register Your Stall</h2>
                             
                             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                                 <div className="space-y-1">
@@ -146,7 +146,7 @@ const Stalls = () => {
                             className="flex flex-col gap-6"
                         >
                             <div className="flex items-center justify-between mb-2">
-                                <h2 className="text-2xl font-black text-white italic uppercase tracking-tight">Available Stalls</h2>
+                                <h2 className="text-2xl font-black text-white tracking-tight">Available Stalls</h2>
                                 <span className="px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-[10px] font-black text-primary uppercase tracking-widest">
                                     {stalls.length} Total
                                 </span>
@@ -178,7 +178,7 @@ const Stalls = () => {
                                                             <i className="fas fa-utensils"></i>
                                                         </div>
                                                         <div className="flex flex-col">
-                                                            <h3 className="text-lg font-black text-white italic uppercase leading-none mb-1">{stall.stallName}</h3>
+                                                            <h3 className="text-lg font-black text-white leading-none mb-1">{stall.stallName}</h3>
                                                             <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest flex items-center gap-2">
                                                                 <i className="fas fa-user-circle text-[8px]"></i> {stall.ownerName}
                                                             </span>

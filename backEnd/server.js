@@ -36,7 +36,7 @@ app.use(async (req, res, next) => {
 
 // Basic Health Check Route
 app.get('/', (req, res) => {
-  res.send('Movie Mukkalu Backend is Running...');
+  res.send('Movie Mokkalu Backend is Running...');
 });
 
 // API Routes

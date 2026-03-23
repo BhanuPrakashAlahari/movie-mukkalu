@@ -17,12 +17,24 @@ const ticketBookingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  displayTime: {
+    type: String,
+    required: true,
+  },
   seats: {
     type: [String],
     required: true,
   },
   totalPrice: {
     type: Number,
+    required: true,
+  },
+  movieName: {
+    type: String,
+    required: true,
+  },
+  poster: {
+    type: String,
     required: true,
   },
   createdAt: {

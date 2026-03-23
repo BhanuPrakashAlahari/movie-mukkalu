@@ -3,11 +3,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import { getBookedSeats, createBooking } from '../services/api';
+import { MOVIES_DATA } from '../data/movies';
 
 const SeatBooking = () => {
   const { dateId, showTime } = useParams();
   const navigate = useNavigate();
   
+  // Find current movie details
+  const currentMovie = MOVIES_DATA[dateId]?.find(m => m.slug === showTime);
+  const movieName = currentMovie?.name || "Movie";
+  const poster = currentMovie?.poster || "";
+
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [alreadyBooked, setAlreadyBooked] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,8 +80,11 @@ const SeatBooking = () => {
         email: userDetails.email,
         dateId,
         showTime,
+        displayTime: currentMovie?.time || showTime,
         seats: selectedSeats,
-        totalPrice: selectedSeats.length * pricePerTicket
+        totalPrice: selectedSeats.length * pricePerTicket,
+        movieName,
+        poster
       };
 
       await createBooking(bookingData);
@@ -85,7 +94,7 @@ const SeatBooking = () => {
       setSelectedSeats([]);
       setShowModal(false);
       setUserDetails({ name: '', email: '' });
-      alert(`Booking Confirmed! Thank you, ${userDetails.name}.`);
+      alert(`Booking Confirmed for ${movieName}! Thank you, ${userDetails.name}.`);
     } catch (error) {
       console.error('Booking failed:', error);
       alert(error.response?.data?.message || 'Booking failed. Please try again.');
@@ -169,11 +178,11 @@ const SeatBooking = () => {
                                     onClick={() => handleSeatClick(seatId)}
                                     disabled={isBooked}
                                     className={`
-                                      relative w-9 h-9 md:w-11 md:h-11 rounded-lg border flex items-center justify-center text-[10px] md:text-[11px] font-black transition-all duration-300
+                                      relative w-9 h-9 md:w-11 md:h-11 rounded-lg border flex items-center justify-center text-[10px] md:text-[11px] font-black transition-all duration-300 overflow-hidden
                                       ${isBooked 
-                                        ? 'bg-white/5 border-white/10 cursor-not-allowed overflow-hidden' 
+                                        ? 'bg-white/5 border-white/10 cursor-not-allowed' 
                                         : isSelected 
-                                          ? 'bg-primary border-white text-white shadow-glow translate-z-10 scale-110' 
+                                          ? 'border-primary shadow-glow scale-110 z-10' 
                                           : 'bg-[#120808] border-white/20 text-white hover:border-white hover:bg-white/5'}
                                     `}
                                   >
@@ -184,8 +193,17 @@ const SeatBooking = () => {
                                         </div>
                                     )}
 
-                                    
-                                    <span className={`${isBooked ? 'opacity-20' : 'opacity-100'} font-black`}>{seatId}</span>
+                                    {isSelected ? (
+                                        <motion.img 
+                                            initial={{ scale: 1.5, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            src={poster} 
+                                            alt="" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className={`${isBooked ? 'opacity-20' : 'opacity-100'} font-black`}>{seatId}</span>
+                                    )}
                                   </button>
                                 );
                               })}
@@ -201,7 +219,7 @@ const SeatBooking = () => {
               </div>
 
               {/* Legend */}
-              <div className="pt-20 pb-10 hidden md:flex justify-center gap-12 opacity-30 select-none">
+              <div className="pt-20 pb-10 flex flex-wrap justify-center gap-6 md:gap-12 opacity-40 select-none">
                 <div className="flex items-center gap-3">
                    <div className="w-3 h-3 rounded bg-white/10 border border-white/20"></div>
                    <span className="text-[10px] font-black uppercase text-white">Available</span>
