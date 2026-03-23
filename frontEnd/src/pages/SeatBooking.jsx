@@ -108,8 +108,7 @@ const SeatBooking = () => {
   };
 
   const rows = ['A', 'B', 'C', 'D', 'E'];
-  const columns = [1, 2, 3]; 
-  const seatsPerCell = [1, 2, 3, 4];
+  const seatsInRow = Array.from({ length: 14 }, (_, i) => i + 1);
 
   return (
     <div className="h-screen bg-[#050101] overflow-hidden flex flex-col font-body">
@@ -156,59 +155,58 @@ const SeatBooking = () => {
           ) : (
             <>
               {/* Seating Grid */}
-              <div className="w-full overflow-x-auto no-scrollbar py-10">
-                <div className="flex justify-start md:justify-center min-w-max mx-auto px-12 md:px-0 transition-all duration-500">
-                  <div className="flex flex-col gap-6 md:gap-10">
+              <div className="w-full overflow-x-auto no-scrollbar py-6 md:py-10">
+                <div className="flex justify-start md:justify-center min-w-max mx-auto px-8 md:px-0 transition-all duration-500">
+                  <div className="flex flex-col gap-4 md:gap-8">
                     {rows.map((row) => (
-                      <div key={row} className="flex items-center gap-6 md:gap-14">
+                      <div key={row} className="flex items-center gap-4 md:gap-10">
                         <span className="w-6 text-[11px] md:text-sm font-black text-white/30 italic font-display">{row}</span>
                         
-                        <div className="flex gap-10 md:gap-16">
-                          {columns.map((col) => (
-                            <div key={col} className="flex gap-3 md:gap-4 px-3 py-2 rounded-2xl border border-white/[0.05] bg-white/[0.01]">
-                              {seatsPerCell.map((seatNum) => {
-                                const seatIndex = (col - 1) * 4 + seatNum;
-                                const seatId = `${row}${seatIndex}`;
-                                const isSelected = selectedSeats.includes(seatId);
-                                const isBooked = alreadyBooked.includes(seatId);
+                        <div className="flex items-center gap-2 md:gap-3">
+                          {seatsInRow.map((seatNum, idx) => {
+                            const seatId = `${row}${seatNum}`;
+                            const isSelected = selectedSeats.includes(seatId);
+                            const isBooked = alreadyBooked.includes(seatId);
 
-                                return (
-                                  <button
-                                    key={seatId}
-                                    onClick={() => handleSeatClick(seatId)}
-                                    disabled={isBooked}
-                                    className={`
-                                      relative w-9 h-9 md:w-11 md:h-11 rounded-lg border flex items-center justify-center text-[10px] md:text-[11px] font-black transition-all duration-300 overflow-hidden
-                                      ${isBooked 
-                                        ? 'bg-white/5 border-white/10 cursor-not-allowed' 
-                                        : isSelected 
-                                          ? 'border-primary shadow-glow scale-110 z-10' 
-                                          : 'bg-[#120808] border-white/20 text-white hover:border-white hover:bg-white/5'}
-                                    `}
-                                  >
-                                    {isBooked && (
-                                        <div className="absolute inset-0 pointer-events-none">
-                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[2px] bg-white/60 rotate-45"></div>
-                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[2px] bg-white/60 -rotate-45"></div>
-                                        </div>
-                                    )}
+                            return (
+                              <React.Fragment key={seatId}>
+                                <button
+                                  onClick={() => handleSeatClick(seatId)}
+                                  disabled={isBooked}
+                                  className={`
+                                    relative w-8 h-8 md:w-11 md:h-11 rounded-lg border flex items-center justify-center text-[10px] md:text-[11px] font-black transition-all duration-300 overflow-hidden
+                                    ${isBooked 
+                                      ? 'bg-white/5 border-white/10 cursor-not-allowed' 
+                                      : isSelected 
+                                        ? 'border-primary shadow-glow scale-110 z-10' 
+                                        : 'bg-[#120808] border-white/20 text-white hover:border-white hover:bg-white/5'}
+                                  `}
+                                >
+                                  {isBooked && (
+                                      <div className="absolute inset-0 pointer-events-none">
+                                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[2px] bg-white/60 rotate-45"></div>
+                                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[2px] bg-white/60 -rotate-45"></div>
+                                      </div>
+                                  )}
 
-                                    {isSelected ? (
-                                        <motion.img 
-                                            initial={{ scale: 1.5, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            src={poster} 
-                                            alt="" 
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <span className={`${isBooked ? 'opacity-20' : 'opacity-100'} font-black`}>{seatId}</span>
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          ))}
+                                  {isSelected ? (
+                                      <motion.img 
+                                          initial={{ scale: 1.5, opacity: 0 }}
+                                          animate={{ scale: 1, opacity: 1 }}
+                                          src={poster} 
+                                          alt="" 
+                                          className="w-full h-full object-cover"
+                                      />
+                                  ) : (
+                                      <span className={`${isBooked ? 'opacity-20' : 'opacity-100'} font-black`}>{seatId}</span>
+                                  )}
+                                </button>
+                                {(idx + 1) % 2 === 0 && idx !== seatsInRow.length - 1 && (
+                                  <div className="w-4 md:w-8" />
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
                         </div>
                         
                         <span className="w-6 text-[11px] md:text-sm font-black text-white/30 italic font-display text-right">{row}</span>
