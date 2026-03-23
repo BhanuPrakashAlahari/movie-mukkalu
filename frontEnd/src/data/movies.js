@@ -40,22 +40,22 @@ export const MOVIES_DATA = {
     {
       name: "Sanam Teri Kasam",
       poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774271335/sanamteri_kasam_cepzmk.jpg",
-      time: '4:30 PM - 7:30 PM',
-      slug: '04-30-PM-07-30-PM',
+      time: '4:30 PM - 7:00 PM',
+      slug: '04-30-PM-07-00-PM',
       status: 'Available'
     }
   ],
   29: [
     {
-      name: "Aashiqui 2",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774271335/aashiqi_2_xgwqv5.jpg",
+      name: "7/G Brindavan Colony",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243227/7G_gmcfzx.jpg",
       time: '10:00 AM - 1:00 PM',
       slug: '10-00-AM-01-00-PM',
       status: 'Available'
     },
     {
-      name: "Nuvvostanante Nenoddantana",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774271335/nuvvasta_eso88h.jpg",
+      name: "Race Gurram",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243228/race_gurram_ce0ru9.jpg",
       time: '1:15 PM - 4:15 PM',
       slug: '01-15-PM-04-15-PM',
       status: 'Available'
