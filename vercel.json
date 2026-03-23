@@ -23,9 +23,11 @@
       "dest": "frontEnd/dist/assets/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "frontEnd/dist/$1",
-      "check": true
+      "src": "/favicon.svg",
+      "dest": "frontEnd/dist/favicon.svg"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",

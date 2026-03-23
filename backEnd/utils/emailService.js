@@ -4,8 +4,8 @@ const sendBookingEmail = async (bookingDetails) => {
   const { name, email, dateId, showTime, displayTime, seats, totalPrice, movieName, poster } = bookingDetails;
 
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('❌ EMAIL_USER or EMAIL_PASS environment variables are missing!');
-      return;
+    console.error('❌ EMAIL_USER or EMAIL_PASS environment variables are missing!');
+    return;
   }
 
   // Create a transporter
@@ -38,6 +38,7 @@ const sendBookingEmail = async (bookingDetails) => {
               <h2 style="margin: 0 0 10px; color: #e11d48; text-transform: uppercase;">${movieName}</h2>
               <p style="margin: 5px 0; color: #999; font-size: 14px;"><strong>DATE:</strong> May ${dateId}, 2026</p>
               <p style="margin: 5px 0; color: #999; font-size: 14px;"><strong>TIME:</strong> ${displayTime}</p>
+              <p style="margin: 5px 0; color: #999; font-size: 14px;"><strong>VENUE:</strong> CSE Block , E-102</p>
             </div>
           </div>
 
@@ -61,7 +62,7 @@ const sendBookingEmail = async (bookingDetails) => {
           <div style="text-align: center; border-top: 1px solid #333; padding-top: 30px;">
              <p style="color: #666; font-size: 13px; line-height: 1.6;">
                Please present this email at the cinema counter.<br>
-               Location: <strong>Movie Mokkalu Cineplex</strong>
+               Location: <strong>CSE BLOCK - (E-102)</strong>
              </p>
           </div>
         </div>
