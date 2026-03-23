@@ -1,18 +1,18 @@
 export const MOVIES_DATA = {
   27: [
     {
-      name: "They call him OG",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243228/og_poster_uehnou.jpg",
+      name: "Kushi",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243294/kushi_ffkvjj.jpg",
       time: '10:00 AM - 1:00 PM',
       slug: '10-00-AM-01-00-PM',
       status: 'Available'
     },
     {
-      name: "Pokiri",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243228/pokiri_aakknd.jpg",
+      name: "Anand",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296970/anand_txwoak.jpg",
       time: '1:15 PM - 4:15 PM',
       slug: '01-15-PM-04-15-PM',
-      status: 'Fast Filling'
+      status: 'Available'
     },
     {
       name: "Kanchana",
@@ -24,22 +24,22 @@ export const MOVIES_DATA = {
   ],
   28: [
     {
-      name: "Darling",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243227/darling_c8mplf.jpg",
+      name: "Orange",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296862/orange_phpxt3.jpg",
       time: '10:00 AM - 1:00 PM',
       slug: '10-00-AM-01-00-PM',
       status: 'Available'
     },
     {
-      name: "Kushi",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243294/kushi_ffkvjj.jpg",
+      name: "Eega",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243227/eega_xtvlq2.jpg",
       time: '1:15 PM - 4:15 PM',
       slug: '01-15-PM-04-15-PM',
-      status: 'Fast Filling'
+      status: 'Available'
     },
     {
-      name: "Sanam Teri Kasam",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774271335/sanamteri_kasam_cepzmk.jpg",
+      name: "Murari",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296895/murari_mdwsm0.jpg",
       time: '4:30 PM - 7:00 PM',
       slug: '04-30-PM-07-00-PM',
       status: 'Available'
@@ -54,15 +54,15 @@ export const MOVIES_DATA = {
       status: 'Available'
     },
     {
-      name: "Race Gurram",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243228/race_gurram_ce0ru9.jpg",
+      name: "Darling",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243227/darling_c8mplf.jpg",
       time: '1:15 PM - 4:15 PM',
       slug: '01-15-PM-04-15-PM',
       status: 'Available'
     },
     {
-      name: "Rangasthalam",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243230/rangastalam_bpvcyk.jpg",
+      name: "Godavari",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296848/godavari_xkbksc.jpg",
       time: '4:30 PM - 7:00 PM',
       slug: '04-30-PM-07-00-PM',
       status: 'Available'
@@ -70,22 +70,22 @@ export const MOVIES_DATA = {
   ],
   30: [
     {
-      name: "Arjun Reddy",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243227/arjun_reddy_ex4bav.jpg",
+      name: "Nuvvu Naku Nachhav",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296849/nnn_yiobqv.jpg",
       time: '10:00 AM - 1:00 PM',
       slug: '10-00-AM-01-00-PM',
       status: 'Available'
     },
     {
-      name: "Salaar",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243229/salaar_khs9kg.jpg",
+      name: "Ee Nagaraniki Emaindhi",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296884/ene_dkpmbb.jpg",
       time: '1:15 PM - 4:15 PM',
       slug: '01-15-PM-04-15-PM',
-      status: 'Fast Filling'
+      status: 'Available'
     },
     {
-      name: "Eega",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243227/eega_xtvlq2.jpg",
+      name: "Arjun Reddy",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243227/arjun_reddy_ex4bav.jpg",
       time: '4:30 PM - 7:00 PM',
       slug: '04-30-PM-07-00-PM',
       status: 'Available'

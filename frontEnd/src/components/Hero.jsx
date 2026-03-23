@@ -12,7 +12,7 @@ const Hero = () => {
       <div className="relative z-10 text-center max-w-5xl mx-auto">
         <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-10 animate-fade-up">
           <span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-glow"></span>
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">Currently Premiering March 2026</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">Currently Premiering May 2026</span>
         </div>
 
         <h1 className="text-6xl md:text-8xl lg:text-9xl font-black mb-8 animate-fade-up">

@@ -201,8 +201,8 @@ const SeatBooking = () => {
                                       <span className={`${isBooked ? 'opacity-20' : 'opacity-100'} font-black`}>{seatId}</span>
                                   )}
                                 </button>
-                                {(idx + 1) % 2 === 0 && idx !== seatsInRow.length - 1 && (
-                                  <div className="w-4 md:w-8" />
+                                {(idx + 1) === 7 && idx !== seatsInRow.length - 1 && (
+                                  <div className="w-10 md:w-24" />
                                 )}
                               </React.Fragment>
                             );
