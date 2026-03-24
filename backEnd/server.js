@@ -1,32 +1,24 @@
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
-const dns = require('dns');
 require('dotenv').config();
 
-// Fix for MongoDB DNS resolution issues on some machines (especially macOS)
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
-
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// --- THE HAMMER: RAW CORS PREFLIGHT HANDLER ---
-// Bypasses everything else if it is an OPTIONS request
+// 1. THE HAMMER: GLOBAL CORS PREFLIGHT PREVENTER 
+// This must be the very first middleware to catch OPTIONS before anything else!
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-session-id');
   
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
+    return res.status(204).end();
   }
   next();
 });
 
 const authSession = require('./middleware/authSession');
-
-const PORT = process.env.PORT || 5000;
 app.use(express.json());
 
 // Apply session identity for all API routes
