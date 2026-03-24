@@ -37,6 +37,23 @@ const ticketBookingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  sessionId: {
+    type: String,
+    required: true,
+    index: true,
+  },
+  paymentId: {
+    type: String,
+    unique: true,
+    sparse: true, // Only enforces uniqueness if the field is present
+    index: true,
+  },
+  orderId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    index: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

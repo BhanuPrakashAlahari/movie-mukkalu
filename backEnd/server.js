@@ -12,13 +12,24 @@ if (dns.setDefaultResultOrder) {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const authSession = require('./middleware/authSession');
+
 // Middleware
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-session-id']
 }));
 app.use(express.json());
+
+// Apply session identity for all API routes
+app.use('/api', (req, res, next) => {
+  // We skip health checks or test routes to avoid being too strict initially
+  if (req.path === '/health' || req.path === '/test-db') {
+    return next();
+  }
+  authSession(req, res, next);
+});
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
