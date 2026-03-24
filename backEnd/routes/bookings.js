@@ -92,18 +92,44 @@ router.post('/lock-seats', async (req, res) => {
     });
     await bookingSession.save();
 
-    // 3. APPLY individual SeatLocks
+    // 3. APPLY individual SeatLocks (with native mongo atomic check)
+    const failedSeats = [];
     await Promise.all(seatIds.map(async (seatId) => {
-      await SeatLock.findOneAndUpdate(
-        { dateId, showTime, seatId },
-        { 
-          lockedBy: sessionId, 
-          bookingSessionId: bookingSession._id, 
-          expiresAt: expiry 
-        },
-        { upsert: true, new: true }
-      );
+      try {
+        await SeatLock.findOneAndUpdate(
+          { 
+            dateId, 
+            showTime, 
+            seatId, 
+            $or: [
+              { lockedBy: sessionId },          // It's already mine (from refresh)
+              { expiresAt: { $lt: now } }       // Or it has expired
+            ]
+          },
+          { 
+            lockedBy: sessionId, 
+            bookingSessionId: bookingSession._id, 
+            expiresAt: expiry 
+          },
+          { upsert: true, new: true, runValidators: true }
+        );
+      } catch (err) {
+        // If 11000 Duplicate Key error or filter mismatch, alguien mas lo tomo
+        failedSeats.push(seatId);
+      }
     }));
+
+    if (failedSeats.length > 0) {
+      // ROLLBACK: Cleanup any partial success in this batch
+      await BookingSession.deleteOne({ _id: bookingSession._id });
+      await SeatLock.deleteMany({ bookingSessionId: bookingSession._id });
+
+      return res.status(200).json({ 
+        success: false, 
+        reason: "SEAT_UNAVAILABLE", 
+        unavailableSeats: failedSeats 
+      });
+    }
 
     res.json({ success: true, bookingSessionId: bookingSession._id, expiresAt: expiry });
   } catch (err) {
