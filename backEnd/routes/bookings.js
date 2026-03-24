@@ -15,10 +15,10 @@ const TICKET_LIMIT = 6;
 
 const calculatePrice = (count) => {
   if (count <= 0) return 0;
-  if (count === 1) return 1;
-  if (count === 2) return 1.5;
-  // 4 or more 1 per ticket is just the count
-  return count; 
+  if (count === 1) return 79;
+  if (count === 2) return 149;
+  // 3 or more tickets get the bulk rate of 69 each
+  return count * 69; 
 };
 
 /**

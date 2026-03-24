@@ -23,9 +23,9 @@ const SeatBooking = () => {
   
   const TICKET_LIMIT = 6;
   const calculateTotal = (count) => {
-    if (count === 1) return 1;
-    if (count === 2) return 1.5;
-    return count;
+    if (count === 1) return 79;
+    if (count === 2) return 149;
+    return count * 69;
   };
 
   const fetchBookings = async (showLoading = true) => {
@@ -105,10 +105,16 @@ const SeatBooking = () => {
       
       if (lockResult.success === false) {
         if (lockResult.reason === "SEAT_UNAVAILABLE") {
-          const suggestions = lockResult.suggestedSeats.length > 0 
+          const suggestions = (lockResult.suggestedSeats?.length > 0) 
             ? `\nSuggested alternatives: ${lockResult.suggestedSeats.join(', ')}` 
             : "";
-          alert(`Some seats were just taken: ${lockResult.unavailableSeats.join(', ')}${suggestions}\n\nPlease update your selection.`);
+          
+          const unavailable = (lockResult.unavailableSeats?.length > 0)
+            ? `\nTaken: ${lockResult.unavailableSeats.join(', ')}`
+            : "";
+
+          alert(`Currently the seats are not available.${unavailable}${suggestions}\n\nPlease update your selection.`);
+          
           fetchBookings(false); // Refresh UI
           setIsSubmitting(false);
           return;
