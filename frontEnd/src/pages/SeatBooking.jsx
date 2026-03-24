@@ -21,7 +21,12 @@ const SeatBooking = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userDetails, setUserDetails] = useState({ name: '', email: '' });
   
-  const pricePerTicket = 100;
+  const TICKET_LIMIT = 6;
+  const calculateTotal = (count) => {
+    if (count === 1) return 1;
+    if (count === 2) return 1.5;
+    return count;
+  };
 
   const fetchBookings = async (showLoading = true) => {
     try {
@@ -61,15 +66,24 @@ const SeatBooking = () => {
   const handleSeatClick = (seatId) => {
     if (alreadyBooked.includes(seatId)) return;
     
-    setSelectedSeats(prev => 
-      prev.includes(seatId) 
-        ? prev.filter(s => s !== seatId) 
-        : [...prev, seatId]
-    );
+    setSelectedSeats(prev => {
+      if (prev.includes(seatId)) {
+        return prev.filter(s => s !== seatId);
+      }
+      if (prev.length >= TICKET_LIMIT) {
+        alert(`You can select a maximum of ${TICKET_LIMIT} seats.`);
+        return prev;
+      }
+      return [...prev, seatId];
+    });
   };
 
   const handlePayClick = () => {
     if (selectedSeats.length === 0) return;
+    if (selectedSeats.length > TICKET_LIMIT) {
+      alert(`Please select maximum ${TICKET_LIMIT} seats.`);
+      return;
+    }
     setShowModal(true);
   };
 
@@ -138,7 +152,7 @@ const SeatBooking = () => {
                 showTime,
                 displayTime: currentMovie?.time || showTime,
                 seats: selectedSeats,
-                totalPrice: selectedSeats.length * pricePerTicket,
+                totalPrice: calculateTotal(selectedSeats.length),
                 movieName,
                 poster
               }
@@ -304,7 +318,7 @@ const SeatBooking = () => {
                 <div className="mt-4 pt-4 border-t border-white/5 text-left flex flex-col gap-2">
                   <div className="flex justify-between uppercase text-[10px] font-black text-white/40">
                     <span>Selected: {selectedSeats.join(', ')}</span>
-                    <span className="text-primary">Total: ₹{selectedSeats.length * pricePerTicket}</span>
+                    <span className="text-primary">Total: ₹{calculateTotal(selectedSeats.length)}</span>
                   </div>
                 </div>
                 <button 
@@ -327,7 +341,7 @@ const SeatBooking = () => {
                 <span className="text-xs font-black text-primary uppercase">{selectedSeats.length} SEATS</span>
                 <button onClick={handleClear} className="text-[10px] font-black text-white/40 uppercase text-left">Clear selection</button>
             </div>
-            <button onClick={handlePayClick} className="px-10 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-tight shadow-glow active:scale-95 transition-all">CHECKOUT ₹{selectedSeats.length * pricePerTicket}</button>
+            <button onClick={handlePayClick} className="px-10 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-tight shadow-glow active:scale-95 transition-all">CHECKOUT ₹{calculateTotal(selectedSeats.length)}</button>
           </motion.div>
         )}
       </AnimatePresence>

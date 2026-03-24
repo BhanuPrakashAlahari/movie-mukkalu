@@ -11,7 +11,15 @@ const razorpay = require('../utils/razorpay');
 // DYNAMIC LOCK TIMEOUTS
 const INITIAL_LOCK_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 const PAYMENT_LOCK_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-const TICKET_PRICE = 100;
+const TICKET_LIMIT = 6;
+
+const calculatePrice = (count) => {
+  if (count <= 0) return 0;
+  if (count === 1) return 1;
+  if (count === 2) return 1.5;
+  // 4 or more 1 per ticket is just the count
+  return count; 
+};
 
 // Get all booked OR reserved seats for a specific show
 router.get('/:dateId/:showTime', async (req, res) => {
@@ -58,6 +66,10 @@ router.post('/lock-seats', async (req, res) => {
 
   if (!dateId || !showTime || !seatIds || !Array.isArray(seatIds) || seatIds.length === 0) {
     return res.status(400).json({ message: "Invalid locking data" });
+  }
+
+  if (seatIds.length > TICKET_LIMIT) {
+    return res.status(403).json({ message: `Maximum ${TICKET_LIMIT} tickets allowed per booking.` });
   }
 
   try {
@@ -160,11 +172,11 @@ router.post('/create-order', async (req, res) => {
     const extendedExpiry = new Date(now.getTime() + PAYMENT_LOCK_TIMEOUT);
 
     // 2. Calculate amount
-    const amount = session.seatIds.length * TICKET_PRICE;
+    const amount = calculatePrice(session.seatIds.length);
 
     // 3. Create Razorpay order
     const options = {
-      amount: Math.round(amount * 100),
+      amount: Math.round(amount * 100), // convert to paise
       currency: "INR",
       receipt: `rcpt_${session._id}`,
       notes: { sessionId, bookingSessionId: session._id.toString() }
@@ -240,7 +252,7 @@ router.post('/verify-payment', async (req, res) => {
 
     // 3. Destructure
     const { dateId, showTime, seatIds: seats, sessionId: finalSessionId } = session;
-    const totalPrice = seats.length * TICKET_PRICE;
+    const totalPrice = calculatePrice(seats.length);
     
     // Safely destructure bookingDetails
     const details = bookingDetails || {};
