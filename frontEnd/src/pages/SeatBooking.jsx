@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import Navbar from '../components/Navbar';
+import ReactPlayer from 'react-player';
 import { getBookedSeats, lockSeats, createRazorpayOrder, verifyPayment, cancelOrder } from '../services/api';
 import { MOVIES_DATA } from '../data/movies';
 
 const SeatBooking = () => {
   const { dateId, showTime } = useParams();
   const navigate = useNavigate();
-  
+
   // Find current movie details
   const currentMovie = MOVIES_DATA[dateId]?.find(m => m.slug === showTime);
   const movieName = currentMovie?.name || "Movie";
   const poster = currentMovie?.poster || "";
+  const trailerUrl = currentMovie?.trailer || "";
 
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [alreadyBooked, setAlreadyBooked] = useState([]);
@@ -21,7 +22,7 @@ const SeatBooking = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userDetails, setUserDetails] = useState({ name: '', email: '' });
   const [bookingSessionId, setBookingSessionId] = useState(null);
-  
+
   const TICKET_LIMIT = 6;
   const calculateTotal = (count) => {
     if (count === 1) return 79;
@@ -43,7 +44,7 @@ const SeatBooking = () => {
 
   useEffect(() => {
     fetchBookings();
-    
+
     // Auto refresh every 1 minute
     const intervalId = setInterval(() => {
       fetchBookings(false);
@@ -66,7 +67,7 @@ const SeatBooking = () => {
 
   const handleSeatClick = (seatId) => {
     if (alreadyBooked.includes(seatId)) return;
-    
+
     setSelectedSeats(prev => {
       if (prev.includes(seatId)) {
         return prev.filter(s => s !== seatId);
@@ -88,10 +89,10 @@ const SeatBooking = () => {
 
     try {
       setIsSubmitting(true);
-      
+
       // Lock the seats right after clicking checkout
       const lockResult = await lockSeats(dateId, showTime, selectedSeats);
-      
+
       if (lockResult.success === false) {
         if (lockResult.reason === "SEAT_UNAVAILABLE") {
           const unavailable = (lockResult.unavailableSeats?.length > 0)
@@ -148,14 +149,14 @@ const SeatBooking = () => {
 
       // 2. Create Razorpay Order using the bookingSessionId we already have
       const order = await createRazorpayOrder(bookingSessionId);
-      
+
       if (!order || !order.id) {
         throw new Error("Failed to generate a secure Order ID from the server. Please check your backend.");
       }
 
       // 3. Configure Razorpay Modal (with debugging for the 'undefined' error)
       const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SUx71yfaQ42aCV';
-      
+
       console.log('--- Razorpay Modal Initializing ---');
       console.log('Order ID:', order.id);
       console.log('Key length:', razorpayKey.length);
@@ -194,7 +195,7 @@ const SeatBooking = () => {
               setSelectedSeats([]);
               setShowModal(false);
               setUserDetails({ name: '', email: '' });
-              navigate('/'); 
+              navigate('/');
             }
           } catch (err) {
             console.error('Verification failed:', err);
@@ -211,7 +212,7 @@ const SeatBooking = () => {
           color: "#A01A1A"
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setIsSubmitting(false);
             // Proactively release seats when user cancels Razorpay modal
             cancelOrder(bookingSessionId).catch(err => console.error("Error releasing seats:", err));
@@ -243,20 +244,18 @@ const SeatBooking = () => {
 
   return (
     <div className="h-screen bg-[#050101] overflow-hidden flex flex-col font-body">
-      <Navbar />
-      
       <main className="flex-1 overflow-y-auto no-scrollbar pb-32">
         <div className="flex flex-col items-center justify-start min-h-full">
-          
-          <div className="w-full px-8 pt-32 md:pt-40 flex justify-between items-center relative z-[110]">
-            <button 
+
+          <div className="w-full px-8 pt-12 md:pt-16 flex justify-between items-center relative z-[110]">
+            <button
               onClick={() => navigate('/booking')}
               className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors"
             >
               <i className="fas fa-chevron-left"></i> Back
             </button>
 
-            <button 
+            <button
               onClick={() => fetchBookings()}
               className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-primary transition-colors group"
             >
@@ -264,11 +263,41 @@ const SeatBooking = () => {
             </button>
           </div>
 
-          <div className="w-[90%] max-w-[500px] mb-16 md:mb-24 flex flex-col items-center animate-fade-up pointer-events-none relative mt-8 text-center">
-            <div className="w-full relative h-[40px] md:h-[60px] flex justify-center">
-               <div className="absolute top-0 w-full h-[150px] border-t-[3px] border-primary rounded-[100%] drop-shadow-[0_10px_20px_rgba(160,26,26,0.6)]"></div>
+          {/* Trailer Player Section - Now between Nav and Screen */}
+          <div className="w-[90%] max-w-[500px] mt-8 mb-4 animate-fade-up">
+            {trailerUrl ? (
+              <div className="w-full aspect-video relative rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
+                <ReactPlayer
+                  url={trailerUrl}
+                  playing={true}
+                  controls={true}
+                  muted={true}
+                  width="100%"
+                  height="100%"
+                  style={{ position: 'absolute', top: 0, left: 0 }}
+                  config={{
+                    youtube: {
+                      playerVars: { showinfo: 0, rel: 0, modestbranding: 1 }
+                    }
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="w-full h-32 flex flex-col items-center justify-center bg-white/[0.02] border border-white/5 rounded-xl transition-all">
+                <i className="fas fa-video-slash text-white/20 text-2xl mb-4"></i>
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.4rem]">Trailer not available</p>
+              </div>
+            )}
+          </div>
+
+          <div className="w-[85%] max-w-[440px] mb-12 flex flex-col items-center animate-fade-up pointer-events-none relative mt-4 text-center">
+            <div className="w-full relative h-12 flex justify-center">
+              <div
+                className="w-full h-10 bg-gradient-to-b from-primary/30 to-transparent border-t-[3px] border-primary drop-shadow-[0_4px_12px_rgba(160,26,26,0.3)]"
+                style={{ clipPath: 'polygon(0% 0%, 100% 0%, 93% 100%, 7% 100%)' }}
+              ></div>
             </div>
-            <p className="mt-6 md:mt-8 text-[11px] font-black text-white uppercase tracking-[0.5rem] italic z-10">THEATER SCREEN</p>
+            <p className="text-white ">Theater Screen</p>
           </div>
 
           {isLoading ? (
@@ -295,18 +324,18 @@ const SeatBooking = () => {
                                 disabled={isBooked}
                                 className={`
                                   relative w-8 h-8 md:w-11 md:h-11 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300
-                                  ${isBooked 
-                                    ? 'bg-white/5 border-white/10 cursor-not-allowed opacity-30 shadow-inner' 
-                                    : isSelected 
-                                      ? 'border-primary bg-primary text-white shadow-glow scale-110 z-10' 
+                                  ${isBooked
+                                    ? 'bg-white/5 border-white/10 cursor-not-allowed opacity-30 shadow-inner'
+                                    : isSelected
+                                      ? 'border-primary bg-primary text-white shadow-glow scale-110 z-10'
                                       : 'bg-[#120808] border-white/20 text-white hover:border-white'}
                                 `}
                               >
                                 {isBooked ? (
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-40">
-                                        <div className="w-full h-px bg-white/60 rotate-45 transform"></div>
-                                        <div className="w-full h-px bg-white/60 -rotate-45 transform absolute"></div>
-                                    </div>
+                                  <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                                    <div className="w-full h-px bg-white/60 rotate-45 transform"></div>
+                                    <div className="w-full h-px bg-white/60 -rotate-45 transform absolute"></div>
+                                  </div>
                                 ) : seatId}
                               </button>
                               {(idx + 1) === 7 && <div className="w-10 md:w-24" />}
@@ -326,7 +355,7 @@ const SeatBooking = () => {
       <AnimatePresence>
         {showModal && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -334,16 +363,16 @@ const SeatBooking = () => {
             >
               <h3 className="text-3xl font-black text-white mb-8 italic">Finalize Booking</h3>
               <form onSubmit={handleFinalPayment} className="flex flex-col gap-5">
-                <input 
+                <input
                   type="text" required placeholder="Full Name"
                   value={userDetails.name}
-                  onChange={(e) => setUserDetails({...userDetails, name: e.target.value})}
+                  onChange={(e) => setUserDetails({ ...userDetails, name: e.target.value })}
                   className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-primary focus:outline-none font-bold"
                 />
-                <input 
+                <input
                   type="email" required placeholder="Email Address"
                   value={userDetails.email}
-                  onChange={(e) => setUserDetails({...userDetails, email: e.target.value})}
+                  onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
                   className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-primary focus:outline-none font-bold"
                 />
                 <div className="mt-4 pt-4 border-t border-white/5 text-left flex flex-col gap-2">
@@ -352,7 +381,7 @@ const SeatBooking = () => {
                     <span className="text-primary">Total: ₹{calculateTotal(selectedSeats.length)}</span>
                   </div>
                 </div>
-                <button 
+                <button
                   type="submit" disabled={isSubmitting}
                   className="mt-6 w-full py-5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-glow active:scale-95 transition-all disabled:opacity-50"
                 >
@@ -369,11 +398,11 @@ const SeatBooking = () => {
         {selectedSeats.length > 0 && !showModal && (
           <motion.div initial={{ y: 200 }} animate={{ y: 0 }} exit={{ y: 200 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[500px] z-50 bg-[#1a0808]/95 p-5 rounded-[2.5rem] flex items-center justify-between shadow-2xl border border-white/10 backdrop-blur-3xl">
             <div className="flex flex-col pl-4">
-                <span className="text-xs font-black text-primary uppercase">{selectedSeats.length} SEATS</span>
-                <button onClick={handleClear} className="text-[10px] font-black text-white/40 uppercase text-left">Clear selection</button>
+              <span className="text-xs font-black text-primary uppercase">{selectedSeats.length} SEATS</span>
+              <button onClick={handleClear} className="text-[10px] font-black text-white/40 uppercase text-left">Clear selection</button>
             </div>
-            <button 
-              onClick={handlePayClick} 
+            <button
+              onClick={handlePayClick}
               disabled={isSubmitting}
               className="px-10 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-tight shadow-glow active:scale-95 transition-all disabled:opacity-50"
             >

@@ -22,22 +22,22 @@ const About = () => {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 relative">
-          <div className="group p-10 bg-bg-secondary/50 border border-white/[0.05] rounded-[2.5rem] hover:border-primary/40 hover:bg-bg-secondary transition-all duration-500">
-            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-8 text-primary text-2xl group-hover:bg-primary group-hover:text-white transition-all duration-300">
+          <div className="p-8 bg-bg-secondary/50 border border-white/[0.05] rounded-xl transition-all duration-500">
+            <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary text-xl transition-all duration-300">
               <i className="fas fa-ticket-alt"></i>
             </div>
-            <h3 className="text-2xl mb-4 font-black">Tickets</h3>
-            <p className="text-text-muted text-sm font-medium leading-[1.7] group-hover:text-white/80 transition-colors">
+            <h3 className="text-xl mb-3 font-black">Tickets</h3>
+            <p className="text-text-muted text-sm font-medium leading-[1.7]">
               Advanced booking algorithms ensuring you get the best seats every time.
             </p>
           </div>
 
-          <div className="group p-10 bg-bg-secondary/50 border border-white/[0.05] rounded-[2.5rem] hover:border-primary/40 hover:bg-bg-secondary transition-all duration-500 md:translate-y-12">
-            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-8 text-primary text-2xl group-hover:bg-primary group-hover:text-white transition-all duration-300">
+          <div className="p-8 bg-bg-secondary/50 border border-white/[0.05] rounded-xl transition-all duration-500 md:translate-y-12">
+            <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary text-xl transition-all duration-300">
               <i className="fas fa-store"></i>
             </div>
-            <h3 className="text-2xl mb-4 font-black">Stalls</h3>
-            <p className="text-text-muted text-sm font-medium leading-[1.7] group-hover:text-white/80 transition-colors">
+            <h3 className="text-xl mb-3 font-black">Order Food</h3>
+            <p className="text-text-muted text-sm font-medium leading-[1.7]">
               Streamlined registration flow for food and beverage vendors.
             </p>
           </div>

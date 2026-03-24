@@ -28,9 +28,16 @@ const Booking = () => {
 
       <main className="pt-32 pb-20 px-[6%]">
         <div className="max-w-6xl mx-auto">
-          <header className="mb-12 text-left">
-            <h1 className="text-4xl md:text-6xl font-black text-gradient animate-fade-up">
-              Select <br /><span className="font-display">Your Show.</span>
+          <header className="mb-12">
+            <button 
+              onClick={() => navigate('/')}
+              className="group flex items-center gap-2 text-text-muted hover:text-white transition-colors mb-6"
+            >
+              <i className="fas fa-chevron-left text-xs group-hover:text-primary transition-colors"></i>
+              <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
+            </button>
+            <h1 className="text-3xl md:text-5xl font-black text-white animate-fade-up">
+              Select Your <span className="text-primary font-display">Show.</span>
             </h1>
           </header>
 
@@ -58,45 +65,42 @@ const Booking = () => {
           </div>
 
           {/* Show Times Grid */}
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
             {currentShows.map((movie, index) => (
               <div
                 key={`${selectedDate.id}-${index}-${movie.name}`}
-                className="group relative p-6 bg-bg-secondary/40 border border-white/[0.05] rounded-xl transition-all duration-500 overflow-hidden"
+                className="flex bg-bg-secondary/40 border border-white/10 rounded-xl overflow-hidden h-[170px] hover:border-white/30 transition-all duration-300 transform hover:-translate-y-1"
               >
-                {/* Poster Background */}
-                <div className="absolute inset-x-0 top-0 h-48 overflow-hidden">
-                  <img
-                    src={movie.poster}
-                    alt=""
-                    className="w-full h-full object-cover opacity-20 transition-transform duration-1000 blur-sm"
+                {/* Left Side: Poster */}
+                <div className="w-[120px] flex-shrink-0 border-r border-white/10">
+                  <img 
+                    src={movie.poster} 
+                    alt={movie.name} 
+                    className="w-full h-full object-cover" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-bg-main/90"></div>
                 </div>
 
-                <div className="relative z-10 px-2 pt-4">
-
-                  <div className="mb-6 flex gap-4 items-center">
-                    <div className="w-20 h-28 rounded-xl overflow-hidden shadow-2xl border border-white/10 flex-shrink-0">
-                      <img src={movie.poster} alt={movie.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">Now Showing</p>
-                      <h3 className="text-lg font-black text-white tracking-tight leading-tight">{movie.name}</h3>
-                    </div>
+                {/* Right Side: Content */}
+                <div className="flex-1 p-4 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[7px] font-black text-primary uppercase tracking-[0.2em] block mb-0.5 px-2 py-0.5 bg-primary/10 w-fit rounded-full leading-none">
+                      Now Showing
+                    </span>
+                    <h3 className="text-base font-black text-white leading-tight line-clamp-1">{movie.name}</h3>
                   </div>
-
-                  <div className="flex flex-col gap-1 mb-8">
-                    <p className="text-text-muted text-[10px] font-bold uppercase tracking-widest">Show Time</p>
-                    <p className="text-white font-black text-lg">{movie.time}</p>
+                  
+                  <div className="flex flex-col gap-3">
+                    <div className="leading-tight">
+                      <p className="text-text-muted text-[7px] font-bold uppercase tracking-widest mb-0.5 opacity-60 font-display">Show Time</p>
+                      <p className="text-white font-black text-sm whitespace-nowrap">{movie.time}</p>
+                    </div>
+                    <button
+                      onClick={() => handleSelectSeats(movie.slug)}
+                      className="w-full h-9 bg-primary text-[8px] font-black uppercase tracking-[0.2em] text-white hover:bg-primary-light transition-colors rounded-lg shadow-glow"
+                    >
+                      Book Now
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => handleSelectSeats(movie.slug)}
-                    className="w-full py-4 bg-primary border border-primary rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-white transition-all duration-300"
-                  >
-                    Select Seats
-                  </button>
                 </div>
               </div>
             ))}
