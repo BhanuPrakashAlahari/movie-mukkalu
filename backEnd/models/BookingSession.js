@@ -32,12 +32,9 @@ const bookingSessionSchema = new mongoose.Schema({
   expiresAt: {
     type: Date,
     required: true,
-    index: true,
+    index: { expires: 0 } // Document self-destructs when expiresAt time is reached
   },
 }, { timestamps: true });
-
-// Automatic cleanup of expired sessions
-bookingSessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const BookingSession = mongoose.model('BookingSession', bookingSessionSchema);
 

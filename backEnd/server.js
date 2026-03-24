@@ -24,7 +24,11 @@ app.use(express.json());
 
 // Apply session identity for all API routes
 app.use('/api', (req, res, next) => {
-  // We skip health checks or test routes to avoid being too strict initially
+  // 1. Always skip preflight OPTIONS requests (CORS)
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  // 2. Skip specific public routes
   if (req.path === '/health' || req.path === '/test-db') {
     return next();
   }
