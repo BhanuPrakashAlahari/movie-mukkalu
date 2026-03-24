@@ -37,7 +37,9 @@ export const checkHealth = async () => {
 
 export const getBookedSeats = async (dateId, showTime) => {
   try {
-    const response = await api.get(`/bookings/${dateId}/${showTime}`);
+    const response = await api.get('/bookings', { 
+      params: { dateId, showTime } 
+    });
     return response.data;
   } catch (error) {
     console.error('API Error:', error);

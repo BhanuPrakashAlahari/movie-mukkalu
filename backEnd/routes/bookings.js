@@ -21,34 +21,66 @@ const calculatePrice = (count) => {
   return count; 
 };
 
-// Get all booked OR reserved seats for a specific show
-router.get('/:dateId/:showTime', async (req, res) => {
+/**
+ * NEW: Get booked/reserved seats using query parameters
+ * GET /api/bookings?dateId=...&showTime=...
+ */
+router.get('/', async (req, res) => {
   try {
-    const { dateId, showTime } = req.params;
+    const { dateId, showTime } = req.query;
     const sessionId = req.sessionId;
+
+    if (!dateId || !showTime) {
+      return res.status(400).json({ message: "Missing dateId or showTime in query parameters." });
+    }
     
-    // 1. Get truly CONFIRMED bookings from the final collection
+    // Logic is identical to the path-param version
     const bookings = await TicketBooking.find({ dateId, showTime });
     const confirmedSeats = bookings.reduce((acc, booking) => [...acc, ...booking.seats], []);
     
-    // 2. Get seats currently in ACTIVE sessions (excluding our own)
-    // We include LOCKED, PAYMENT_PENDING, and CONFIRMED (in case sync is slow)
     const activeSessions = await BookingSession.find({
       dateId,
       showTime,
       expiresAt: { $gt: new Date() },
       status: { $in: ['LOCKED', 'PAYMENT_PENDING', 'CONFIRMED'] },
-      sessionId: { $ne: sessionId } // Don't block our own seats from ourselves
+      sessionId: { $ne: sessionId } 
     });
     
     const reservedSeats = activeSessions.reduce((acc, session) => [...acc, ...session.seatIds], []);
-
-    // Combine both sets
     const allUnavailableSeats = [...new Set([...confirmedSeats, ...reservedSeats])];
     
     res.json(allUnavailableSeats);
   } catch (err) {
-    console.error("Fetch bookings error:", err);
+    console.error("Fetch bookings (query) error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/**
+ * OLD: Get booked/reserved seats using path parameters (Backward Compatibility)
+ */
+router.get('/:dateId/:showTime', async (req, res) => {
+  try {
+    const { dateId, showTime } = req.params;
+    const sessionId = req.sessionId;
+    
+    const bookings = await TicketBooking.find({ dateId, showTime });
+    const confirmedSeats = bookings.reduce((acc, booking) => [...acc, ...booking.seats], []);
+    
+    const activeSessions = await BookingSession.find({
+      dateId,
+      showTime,
+      expiresAt: { $gt: new Date() },
+      status: { $in: ['LOCKED', 'PAYMENT_PENDING', 'CONFIRMED'] },
+      sessionId: { $ne: sessionId } 
+    });
+    
+    const reservedSeats = activeSessions.reduce((acc, session) => [...acc, ...session.seatIds], []);
+    const allUnavailableSeats = [...new Set([...confirmedSeats, ...reservedSeats])];
+    
+    res.json(allUnavailableSeats);
+  } catch (err) {
+    console.error("Fetch bookings (path) error:", err);
     res.status(500).json({ message: err.message });
   }
 });
