@@ -13,31 +13,34 @@ const INITIAL_LOCK_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 const PAYMENT_LOCK_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 const TICKET_PRICE = 100;
 
-// Get all booked OR locked seats for a specific show
+// Get all booked OR reserved seats for a specific show
 router.get('/:dateId/:showTime', async (req, res) => {
   try {
     const { dateId, showTime } = req.params;
+    const sessionId = req.sessionId;
     
-    // 1. Get confirmed bookings
+    // 1. Get truly CONFIRMED bookings from the final collection
     const bookings = await TicketBooking.find({ dateId, showTime });
-    const bookedSeats = bookings.reduce((acc, booking) => [...acc, ...booking.seats], []);
+    const confirmedSeats = bookings.reduce((acc, booking) => [...acc, ...booking.seats], []);
     
-    // 2. Get active locks (EXCLUDING those locked by this session)
-    // This allows the current user to see their own locked seats as 'available' 
-    // to their frontend logic (so they stay selected)
-    const locks = await SeatLock.find({ 
-      dateId, 
-      showTime, 
+    // 2. Get seats currently in ACTIVE sessions (excluding our own)
+    // We include LOCKED, PAYMENT_PENDING, and CONFIRMED (in case sync is slow)
+    const activeSessions = await BookingSession.find({
+      dateId,
+      showTime,
       expiresAt: { $gt: new Date() },
-      lockedBy: { $ne: req.sessionId } // Don't block the user from their own locks
+      status: { $in: ['LOCKED', 'PAYMENT_PENDING', 'CONFIRMED'] },
+      sessionId: { $ne: sessionId } // Don't block our own seats from ourselves
     });
-    const lockedByOthers = locks.map(l => l.seatId);
+    
+    const reservedSeats = activeSessions.reduce((acc, session) => [...acc, ...session.seatIds], []);
 
-    // Combine confirmed bookings + seats locked by others
-    const allUnavailableSeats = [...new Set([...bookedSeats, ...lockedByOthers])];
+    // Combine both sets
+    const allUnavailableSeats = [...new Set([...confirmedSeats, ...reservedSeats])];
     
     res.json(allUnavailableSeats);
   } catch (err) {
+    console.error("Fetch bookings error:", err);
     res.status(500).json({ message: err.message });
   }
 });
