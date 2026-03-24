@@ -34,8 +34,7 @@ const TrailerPreloader = () => {
 
 const Landing = () => {
   return (
-    <div className="min-h-screen selection:bg-primary selection:text-white">
-      <TrailerPreloader />
+    <div className="min-h-screen bg-bg-main selection:bg-primary selection:text-white">
       <Navbar />
       <main>
         <Hero />

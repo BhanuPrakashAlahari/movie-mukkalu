@@ -6,6 +6,7 @@ import SeatBooking from './pages/SeatBooking';
 import Stalls from './pages/Stalls';
 import Promotions from './pages/Promotions';
 import Contact from './pages/Contact';
+import RukkuBookings from './pages/RukkuBookings';
 
 import { checkHealth } from './services/api';
 import { ALL_POSTERS } from './data/movies';
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/stalls" element={<Stalls />} />
         <Route path="/promotions" element={<Promotions />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/rukkuBookings" element={<RukkuBookings />} />
       </Routes>
     </Router>
   );

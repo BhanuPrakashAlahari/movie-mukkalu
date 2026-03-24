@@ -4,7 +4,7 @@ const TicketBooking = require('../models/Booking');
 const SeatLock = require('../models/SeatLock');
 const Order = require('../models/Order');
 const BookingSession = require('../models/BookingSession');
-const { sendBookingEmail } = require('../utils/emailService');
+const { sendBookingEmail, sendAdminBookingEmail } = require('../utils/emailService');
 const crypto = require('crypto');
 const razorpay = require('../utils/razorpay');
 
@@ -17,8 +17,9 @@ const calculatePrice = (count) => {
   if (count <= 0) return 0;
   if (count === 1) return 79;
   if (count === 2) return 149;
-  // 3 or more tickets get the bulk rate of 69 each
-  return count * 69; 
+  if (count === 3) return 79 + 149;
+  // 4 or more tickets get the bulk rate of 69 each
+  return count * 69;
 };
 
 /**
@@ -33,25 +34,58 @@ router.get('/', async (req, res) => {
     if (!dateId || !showTime) {
       return res.status(400).json({ message: "Missing dateId or showTime in query parameters." });
     }
-    
+
     // Logic is identical to the path-param version
     const bookings = await TicketBooking.find({ dateId, showTime });
     const confirmedSeats = bookings.reduce((acc, booking) => [...acc, ...booking.seats], []);
-    
+
     const activeSessions = await BookingSession.find({
       dateId,
       showTime,
       expiresAt: { $gt: new Date() },
       status: { $in: ['LOCKED', 'PAYMENT_PENDING', 'CONFIRMED'] },
-      sessionId: { $ne: sessionId } 
+      sessionId: { $ne: sessionId }
     });
-    
+
     const reservedSeats = activeSessions.reduce((acc, session) => [...acc, ...session.seatIds], []);
     const allUnavailableSeats = [...new Set([...confirmedSeats, ...reservedSeats])];
-    
+
     res.json(allUnavailableSeats);
   } catch (err) {
     console.error("Fetch bookings (query) error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/**
+ * Admin: Get all bookings (History)
+ * GET /api/bookings/all-bookings
+ */
+router.get('/rukku-bookings', async (req, res) => {
+  try {
+    const allBookings = await TicketBooking.find().sort({ createdAt: -1 });
+    res.json(allBookings);
+  } catch (err) {
+    console.error("Fetch all bookings error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/**
+ * Admin: Toggle visited status
+ * PUT /api/bookings/:id/visited
+ */
+router.put('/:id/visited', async (req, res) => {
+  try {
+    const { visited } = req.body;
+    const updated = await TicketBooking.findByIdAndUpdate(
+      req.params.id,
+      { visited },
+      { new: true }
+    );
+    res.json(updated);
+  } catch (err) {
+    console.error("Toggle visited error:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -63,21 +97,21 @@ router.get('/:dateId/:showTime', async (req, res) => {
   try {
     const { dateId, showTime } = req.params;
     const sessionId = req.sessionId;
-    
+
     const bookings = await TicketBooking.find({ dateId, showTime });
     const confirmedSeats = bookings.reduce((acc, booking) => [...acc, ...booking.seats], []);
-    
+
     const activeSessions = await BookingSession.find({
       dateId,
       showTime,
       expiresAt: { $gt: new Date() },
       status: { $in: ['LOCKED', 'PAYMENT_PENDING', 'CONFIRMED'] },
-      sessionId: { $ne: sessionId } 
+      sessionId: { $ne: sessionId }
     });
-    
+
     const reservedSeats = activeSessions.reduce((acc, session) => [...acc, ...session.seatIds], []);
     const allUnavailableSeats = [...new Set([...confirmedSeats, ...reservedSeats])];
-    
+
     res.json(allUnavailableSeats);
   } catch (err) {
     console.error("Fetch bookings (path) error:", err);
@@ -111,7 +145,7 @@ router.post('/lock-seats', async (req, res) => {
     // 1. Check current availability
     const confirmedBookings = await TicketBooking.find({ dateId, showTime });
     const bookedSeats = confirmedBookings.reduce((acc, b) => [...acc, ...b.seats], []);
-    
+
     const activeSessions = await BookingSession.find({
       dateId,
       showTime,
@@ -120,7 +154,7 @@ router.post('/lock-seats', async (req, res) => {
       sessionId: { $ne: sessionId }
     });
     const lockedByOthers = activeSessions.reduce((acc, s) => [...acc, ...s.seatIds], []);
-    
+
     const allUnavailable = new Set([...bookedSeats, ...lockedByOthers]);
     const unavailableInRequest = seatIds.filter(s => allUnavailable.has(s));
 
@@ -144,19 +178,19 @@ router.post('/lock-seats', async (req, res) => {
     await Promise.all(seatIds.map(async (seatId) => {
       try {
         await SeatLock.findOneAndUpdate(
-          { 
-            dateId, 
-            showTime, 
-            seatId, 
+          {
+            dateId,
+            showTime,
+            seatId,
             $or: [
               { lockedBy: sessionId },          // It's already mine (from refresh)
               { expiresAt: { $lt: now } }       // Or it has expired
             ]
           },
-          { 
-            lockedBy: sessionId, 
-            bookingSessionId: bookingSession._id, 
-            expiresAt: expiry 
+          {
+            lockedBy: sessionId,
+            bookingSessionId: bookingSession._id,
+            expiresAt: expiry
           },
           { upsert: true, new: true, runValidators: true }
         );
@@ -171,10 +205,10 @@ router.post('/lock-seats', async (req, res) => {
       await BookingSession.deleteOne({ _id: bookingSession._id });
       await SeatLock.deleteMany({ bookingSessionId: bookingSession._id });
 
-      return res.status(200).json({ 
-        success: false, 
-        reason: "SEAT_UNAVAILABLE", 
-        unavailableSeats: failedSeats 
+      return res.status(200).json({
+        success: false,
+        reason: "SEAT_UNAVAILABLE",
+        unavailableSeats: failedSeats
       });
     }
 
@@ -195,7 +229,7 @@ router.post('/create-order', async (req, res) => {
   try {
     const session = await BookingSession.findById(bookingSessionId);
     const now = new Date();
-    
+
     if (!session || session.status === 'FAILED' || session.expiresAt < now) {
       return res.status(403).json({ message: "Session expired or invalid. Please re-select seats." });
     }
@@ -240,9 +274,9 @@ router.post('/create-order', async (req, res) => {
  * Validates the payment signature and saves the booking.
  */
 router.post('/verify-payment', async (req, res) => {
-  const { 
-    razorpay_order_id, 
-    razorpay_payment_id, 
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
     razorpay_signature,
     bookingDetails
   } = req.body;
@@ -264,10 +298,10 @@ router.post('/verify-payment', async (req, res) => {
     }
 
     // 1.5. IDEMPOTENCY CHECK
-    const existing = await TicketBooking.findOne({ 
-      $or: [{ orderId: razorpay_order_id }, { paymentId: razorpay_payment_id }] 
+    const existing = await TicketBooking.findOne({
+      $or: [{ orderId: razorpay_order_id }, { paymentId: razorpay_payment_id }]
     });
-    
+
     if (existing) {
       return res.status(200).json({ status: "success", booking: existing, message: "Booking recovered." });
     }
@@ -285,7 +319,7 @@ router.post('/verify-payment', async (req, res) => {
     // 3. Destructure
     const { dateId, showTime, seatIds: seats, sessionId: finalSessionId } = session;
     const totalPrice = calculatePrice(seats.length);
-    
+
     // Safely destructure bookingDetails
     const details = bookingDetails || {};
     const name = details.name || "Customer";
@@ -297,9 +331,9 @@ router.post('/verify-payment', async (req, res) => {
     // 5. ATOMIC SEAT CHECK
     const existingBookings = await TicketBooking.find({ dateId, showTime });
     const allBookedSeats = existingBookings.reduce((acc, b) => [...acc, ...b.seats], []);
-    
+
     const isAnySeatAlreadyBooked = seats.some(seat => allBookedSeats.includes(seat));
-    
+
     if (isAnySeatAlreadyBooked) {
       const myBooking = await TicketBooking.findOne({ orderId: razorpay_order_id });
       if (myBooking) return res.status(200).json({ status: "success", booking: myBooking });
@@ -331,7 +365,7 @@ router.post('/verify-payment', async (req, res) => {
     // 7. Update Session to CONFIRMED
     session.status = 'CONFIRMED';
     await session.save();
-    
+
     // 8. Release any remaining locks
     await SeatLock.deleteMany({
       bookingSessionId: session._id
@@ -339,14 +373,15 @@ router.post('/verify-payment', async (req, res) => {
 
     // 9. Send confirmation email
     await sendBookingEmail(newBooking);
-    
+    await sendAdminBookingEmail(newBooking);
+
     res.status(201).json({ status: "success", booking: newBooking });
 
   } catch (err) {
     console.error("Critical: Verify Payment 500 error:", err);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Internal error during finalization.",
-      error: err.message 
+      error: err.message
     });
   }
 });
@@ -374,7 +409,7 @@ router.post('/cancel-order', async (req, res) => {
         bookingSessionId: session._id,
         lockedBy: sessionId
       });
-      
+
       return res.json({ message: "Order cancelled and seats released successfully." });
     }
 

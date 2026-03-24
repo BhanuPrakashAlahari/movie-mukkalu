@@ -82,4 +82,41 @@ const sendBookingEmail = async (bookingDetails) => {
   }
 };
 
-module.exports = { sendBookingEmail };
+const sendAdminBookingEmail = async (bookingDetails) => {
+  const { name, email, seats, totalPrice, movieName } = bookingDetails;
+  
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: `"Movie Mokkalu Admin" <${process.env.EMAIL_USER}>`,
+    to: 'ashoktech321@gmail.com',
+    subject: `New Booking: ${movieName} - ₹${totalPrice}`,
+    html: `
+      <h2>New Ticket Booking Received</h2>
+      <p><strong>Customer Name:</strong> ${name}</p>
+      <p><strong>Customer Email:</strong> ${email}</p>
+      <p><strong>Movie:</strong> ${movieName}</p>
+      <p><strong>Seats:</strong> ${seats.join(', ')}</p>
+      <p><strong>Total Amount:</strong> ₹${totalPrice}</p>
+      <hr />
+      <p>Sent automatically by Movie Mokkalu Server</p>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Admin notification sent to ashoktech321@gmail.com`);
+  } catch (error) {
+    console.error('Error sending admin email:', error);
+  }
+};
+
+module.exports = { sendBookingEmail, sendAdminBookingEmail };

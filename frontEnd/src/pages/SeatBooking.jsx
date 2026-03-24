@@ -26,6 +26,7 @@ const SeatBooking = () => {
   const calculateTotal = (count) => {
     if (count === 1) return 79;
     if (count === 2) return 149;
+    if (count === 3) return 79 + 149;
     return count * 69;
   };
 
@@ -253,7 +254,11 @@ const SeatBooking = () => {
               >
                 <i className="fas fa-chevron-left text-white/60"></i>
               </button>
-              <h1 className="text-lg font-black tracking-[0.2em] italic text-primary" style={{ fontFamily: 'Google Sans, sans-serif' }}>MovieMokkalu</h1>
+              <Link to="/" className="hover:opacity-80 transition-opacity">
+                <h1 className="font-display text-xl md:text-2xl font-black tracking-tighter text-white" style={{ fontFamily: 'Google Sans, sans-serif' }}>
+                  Movie <span className="text-primary">Mokkalu</span>
+                </h1>
+              </Link>
               <div className="w-10"></div> {/* Spacer */}
             </div>
 

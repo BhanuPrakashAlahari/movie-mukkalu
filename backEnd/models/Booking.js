@@ -54,6 +54,10 @@ const ticketBookingSchema = new mongoose.Schema({
     sparse: true,
     index: true,
   },
+  visited: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

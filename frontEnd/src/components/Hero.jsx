@@ -1,24 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import VideoPlayer from './ui/video-player';
 
 const Hero = () => {
-  const featuredTrailer = "https://www.youtube.com/watch?v=KFHXCvvxL1U";
-
   return (
     <section className="relative h-screen flex flex-col items-center justify-center px-[6%] overflow-hidden bg-bg-main">
       {/* Background Cinematic Glows */}
       <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/10 blur-[150px] rounded-full animate-pulse-slow"></div>
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full animate-pulse-slow delay-700"></div>
 
-      {/* Featured Trailer Video Player */}
-      <div className="relative z-20 w-full max-w-4xl mb-12 animate-fade-up">
-        <VideoPlayer src={featuredTrailer} />
-      </div>
-
       {/* Content */}
-      <div className="relative z-10 text-center max-w-5xl mx-auto mt-[-2rem]">
+      <div className="relative z-10 text-center max-w-5xl mx-auto">
 
         <h1 className="text-5xl md:text-8xl lg:text-9xl font-black mb-8 pt-12 md:pt-0 animate-fade-up">
           <span className="text-gradient block mb-4">Experience</span>

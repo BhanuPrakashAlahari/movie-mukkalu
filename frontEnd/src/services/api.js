@@ -47,6 +47,26 @@ export const getBookedSeats = async (dateId, showTime) => {
   }
 };
 
+export const getRukkuBookings = async () => {
+  try {
+    const response = await api.get('/bookings/rukku-bookings');
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+};
+
+export const toggleBookingVisited = async (id, visited) => {
+  try {
+    const response = await api.put(`/bookings/${id}/visited`, { visited });
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+};
+
 export const createBooking = async (bookingData) => {
   try {
     const response = await api.post('/bookings', bookingData);
