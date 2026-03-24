@@ -20,6 +20,7 @@ const SeatBooking = () => {
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userDetails, setUserDetails] = useState({ name: '', email: '' });
+  const [bookingSessionId, setBookingSessionId] = useState(null);
   
   const TICKET_LIMIT = 6;
   const calculateTotal = (count) => {
@@ -78,13 +79,54 @@ const SeatBooking = () => {
     });
   };
 
-  const handlePayClick = () => {
+  const handlePayClick = async () => {
     if (selectedSeats.length === 0) return;
     if (selectedSeats.length > TICKET_LIMIT) {
       alert(`Please select maximum ${TICKET_LIMIT} seats.`);
       return;
     }
-    setShowModal(true);
+
+    try {
+      setIsSubmitting(true);
+      
+      // Lock the seats right after clicking checkout
+      const lockResult = await lockSeats(dateId, showTime, selectedSeats);
+      
+      if (lockResult.success === false) {
+        if (lockResult.reason === "SEAT_UNAVAILABLE") {
+          const unavailable = (lockResult.unavailableSeats?.length > 0)
+            ? `\nTaken: ${lockResult.unavailableSeats.join(', ')}`
+            : "";
+
+          alert(`Currently the seats are not available.${unavailable}\n\nPlease update your selection.`);
+          fetchBookings(false); // Refresh UI to show the real status
+        } else {
+          alert(lockResult.message || "Could not lock seats.");
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      setBookingSessionId(lockResult.bookingSessionId);
+      setShowModal(true);
+    } catch (error) {
+      console.error('Locking failed:', error);
+      alert('Failed to reserve seats. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancelModal = async () => {
+    setShowModal(false);
+    if (bookingSessionId) {
+      try {
+        await cancelOrder(bookingSessionId);
+        setBookingSessionId(null);
+      } catch (err) {
+        console.error("Error releasing seats:", err);
+      }
+    }
   };
 
   /**
@@ -100,30 +142,12 @@ const SeatBooking = () => {
     try {
       setIsSubmitting(true);
 
-      // 1. Lock the seats first (Atomic safety)
-      const lockResult = await lockSeats(dateId, showTime, selectedSeats);
-      
-      if (lockResult.success === false) {
-        if (lockResult.reason === "SEAT_UNAVAILABLE") {
-          const suggestions = (lockResult.suggestedSeats?.length > 0) 
-            ? `\nSuggested alternatives: ${lockResult.suggestedSeats.join(', ')}` 
-            : "";
-          
-          const unavailable = (lockResult.unavailableSeats?.length > 0)
-            ? `\nTaken: ${lockResult.unavailableSeats.join(', ')}`
-            : "";
-
-          alert(`Currently the seats are not available.${unavailable}${suggestions}\n\nPlease update your selection.`);
-          
-          fetchBookings(false); // Refresh UI
-          setIsSubmitting(false);
-          return;
-        }
-        throw new Error(lockResult.message || "Could not lock seats.");
+      if (!bookingSessionId) {
+        throw new Error("Missing booking session. Please re-select seats.");
       }
 
-      // 2. Create Razorpay Order using the bookingSessionId
-      const order = await createRazorpayOrder(lockResult.bookingSessionId);
+      // 2. Create Razorpay Order using the bookingSessionId we already have
+      const order = await createRazorpayOrder(bookingSessionId);
       
       if (!order || !order.id) {
         throw new Error("Failed to generate a secure Order ID from the server. Please check your backend.");
@@ -189,8 +213,9 @@ const SeatBooking = () => {
         modal: {
           ondismiss: function() {
             setIsSubmitting(false);
-            // Proactively release seats when user cancels
-            cancelOrder(lockResult.bookingSessionId).catch(err => console.error("Error releasing seats:", err));
+            // Proactively release seats when user cancels Razorpay modal
+            cancelOrder(bookingSessionId).catch(err => console.error("Error releasing seats:", err));
+            setBookingSessionId(null);
           }
         }
       };
@@ -333,7 +358,7 @@ const SeatBooking = () => {
                 >
                   {isSubmitting ? 'PROCESSING...' : 'CONFIRM & PAY'}
                 </button>
-                <button type="button" onClick={() => setShowModal(false)} className="text-[10px] font-black text-white/40 uppercase mt-2">CANCEL</button>
+                <button type="button" onClick={handleCancelModal} className="text-[10px] font-black text-white/40 uppercase mt-2">CANCEL</button>
               </form>
             </motion.div>
           </div>
@@ -347,7 +372,13 @@ const SeatBooking = () => {
                 <span className="text-xs font-black text-primary uppercase">{selectedSeats.length} SEATS</span>
                 <button onClick={handleClear} className="text-[10px] font-black text-white/40 uppercase text-left">Clear selection</button>
             </div>
-            <button onClick={handlePayClick} className="px-10 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-tight shadow-glow active:scale-95 transition-all">CHECKOUT ₹{calculateTotal(selectedSeats.length)}</button>
+            <button 
+              onClick={handlePayClick} 
+              disabled={isSubmitting}
+              className="px-10 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-tight shadow-glow active:scale-95 transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? 'RESERVING...' : `CHECKOUT ₹${calculateTotal(selectedSeats.length)}`}
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
