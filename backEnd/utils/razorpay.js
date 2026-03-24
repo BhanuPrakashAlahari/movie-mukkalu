@@ -1,20 +1,56 @@
-require('dotenv').config();
 const Razorpay = require('razorpay');
 
-// Sensitive but necessary for debugging why authentication is failing
-console.log('--- Razorpay SDK Handshake ---');
-console.log('ID Detected:', (process.env.RAZORPAY_KEY_ID || 'MISSING').substring(0, 10) + '...');
-console.log('Secret Detected:', process.env.RAZORPAY_KEY_SECRET ? 'YES' : 'NO');
-console.log('Secret length:', process.env.RAZORPAY_KEY_SECRET ? process.env.RAZORPAY_KEY_SECRET.length : 0);
-console.log('------------------------------');
+let instance = null;
 
-if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-    console.error('[CRITICAL] Razorpay Keys are missing from environment!');
-}
+const getRazorpayInstance = () => {
+    if (instance) return instance;
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
+    const key_id = process.env.RAZORPAY_KEY_ID;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!key_id || !key_secret) {
+        console.error('[RAZORPAY] ERROR: Keys missing in environment variables!');
+        throw new Error('Razorpay Keys are missing from environment!');
+    }
+
+    instance = new Razorpay({
+        key_id,
+        key_secret,
+    });
+    
+    return instance;
+};
+
+/**
+ * Deep Proxy for Razorpay SDK.
+ * This allows require('../utils/razorpay') to succeed on boot
+ * even if keys are missing (preventing the 500 OPTIONS error on Vercel).
+ * It only initializes the real SDK when you try to access a property (like .orders).
+ */
+module.exports = new Proxy({}, {
+    get: (target, prop) => {
+        // Handle common Node properties and then/promise checks
+        if (prop === 'then' || prop === 'inspector_hold' || prop === 'prototype') return undefined;
+        
+        const rzp = getRazorpayInstance();
+        let value = rzp[prop];
+        
+        // If the property is an object (like .orders, .payments), wrap it to ensure its methods stay bound
+        if (typeof value === 'object' && value !== null) {
+            return new Proxy(value, {
+                get: (subTarget, subProp) => {
+                    const subValue = subTarget[subProp];
+                    if (typeof subValue === 'function') {
+                        return subValue.bind(subTarget);
+                    }
+                    return subValue;
+                }
+            });
+        }
+        
+        if (typeof value === 'function') {
+            return value.bind(rzp);
+        }
+        return value;
+    }
 });
-
-module.exports = razorpay;
