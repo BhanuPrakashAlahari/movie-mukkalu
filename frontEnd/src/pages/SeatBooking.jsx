@@ -15,7 +15,7 @@ const SeatBooking = () => {
   const poster = currentMovie?.poster || "";
 
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [alreadyBooked, setAlreadyBooked] = useState([]);
+  const [bookedStatus, setBookedStatus] = useState({ booked: [], locked: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,31 +23,8 @@ const SeatBooking = () => {
   
   const pricePerTicket = 100;
 
-  const fetchBookings = async (showLoading = true) => {
-    try {
-      if (showLoading) setIsLoading(true);
-      const booked = await getBookedSeats(dateId, showTime);
-      setAlreadyBooked(booked);
-    } catch (error) {
-      console.error('Failed to fetch bookings:', error);
-    } finally {
-      if (showLoading) setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchBookings();
-    
-    // Auto refresh every 1 minute
-    const intervalId = setInterval(() => {
-      fetchBookings(false);
-    }, 60000);
-
-    return () => clearInterval(intervalId);
-  }, [dateId, showTime]);
-
-  // Load Razorpay Script
-  useEffect(() => {
+    // Load Razorpay Script
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
@@ -58,8 +35,29 @@ const SeatBooking = () => {
     };
   }, []);
 
+  const fetchBookings = async (showLoading = true) => {
+    try {
+      if (showLoading) setIsLoading(true);
+      const data = await getBookedSeats(dateId, showTime);
+      setBookedStatus(data || { booked: [], locked: [] });
+    } catch (error) {
+      console.error('Failed to fetch bookings:', error);
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+    // Auto refresh every 20 seconds for real-time blocking
+    const intervalId = setInterval(() => fetchBookings(false), 20000);
+    return () => clearInterval(intervalId);
+  }, [dateId, showTime]);
+
+  const combinedUnavailable = [...bookedStatus.booked, ...bookedStatus.locked];
+
   const handleSeatClick = (seatId) => {
-    if (alreadyBooked.includes(seatId)) return;
+    if (combinedUnavailable.includes(seatId)) return;
     
     setSelectedSeats(prev => 
       prev.includes(seatId) 
@@ -73,9 +71,6 @@ const SeatBooking = () => {
     setShowModal(true);
   };
 
-  /**
-   * Production-Grade Razorpay Integration Logic
-   */
   const handleFinalPayment = async (e) => {
     e.preventDefault();
     if (!userDetails.name || !userDetails.email) {
@@ -85,26 +80,13 @@ const SeatBooking = () => {
 
     try {
       setIsSubmitting(true);
-
-      // 1. Lock the seats first (Atomic safety)
       await lockSeats(dateId, showTime, selectedSeats);
-
-      // 2. Create Razorpay Order
       const order = await createRazorpayOrder(dateId, showTime, selectedSeats);
       
-      if (!order || !order.id) {
-        throw new Error("Failed to generate a secure Order ID from the server. Please check your backend logs.");
-      }
-
-      // 3. Configure Razorpay Modal (with debugging for the 'undefined' error)
-      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SUx71yfaQ42aCV';
-      
-      console.log('--- Razorpay Modal Initializing ---');
-      console.log('Order ID:', order.id);
-      console.log('Key length:', razorpayKey.length);
+      if (!order || !order.id) throw new Error("Order creation failed");
 
       const options = {
-        key: razorpayKey,
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SUx71yfaQ42aCV',
         amount: order.amount,
         currency: order.currency,
         name: "Movie Mokkalu",
@@ -113,7 +95,6 @@ const SeatBooking = () => {
         order_id: order.id,
         handler: async (response) => {
           try {
-            // 4. Verify Payment & Finalize Booking
             const result = await verifyPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -132,8 +113,7 @@ const SeatBooking = () => {
             });
 
             if (result.status === 'success') {
-              alert(`Booking Confirmed! Thank you, ${userDetails.name}.`);
-              setAlreadyBooked(prev => [...prev, ...selectedSeats]);
+              alert(`Booking Confirmed! Order ID: ${response.razorpay_order_id}`);
               setSelectedSeats([]);
               setShowModal(false);
               setUserDetails({ name: '', email: '' });
@@ -141,41 +121,24 @@ const SeatBooking = () => {
             }
           } catch (err) {
             console.error('Verification failed:', err);
-            alert("Payment verification failed. Please contact support if your money was deducted.");
+            alert("Payment verification failed. Contact support with Order ID.");
           } finally {
             setIsSubmitting(false);
           }
         },
-        prefill: {
-          name: userDetails.name,
-          email: userDetails.email
-        },
-        theme: {
-          color: "#A01A1A"
-        },
-        modal: {
-          ondismiss: function() {
-            setIsSubmitting(false);
-          }
-        }
+        prefill: { name: userDetails.name, email: userDetails.email },
+        theme: { color: "#A01A1A" },
+        modal: { ondismiss: () => setIsSubmitting(false) }
       };
-
-      if (!window.Razorpay) {
-        throw new Error("Razorpay SDK failed to load. Please check your internet connection.");
-      }
 
       const rzp = new window.Razorpay(options);
       rzp.open();
 
     } catch (error) {
       console.error('Checkout failed:', error);
-      alert(error.message || 'Payment initiation failed. Please try again.');
+      alert(error.message || 'Payment initiation failed.');
       setIsSubmitting(false);
     }
-  };
-
-  const handleClear = () => {
-    setSelectedSeats([]);
   };
 
   const rows = ['A', 'B', 'C', 'D', 'E'];
@@ -189,17 +152,10 @@ const SeatBooking = () => {
         <div className="flex flex-col items-center justify-start min-h-full">
           
           <div className="w-full px-8 pt-32 md:pt-40 flex justify-between items-center relative z-[110]">
-            <button 
-              onClick={() => navigate('/booking')}
-              className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors"
-            >
+            <button onClick={() => navigate('/booking')} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors">
               <i className="fas fa-chevron-left"></i> Back
             </button>
-
-            <button 
-              onClick={() => fetchBookings()}
-              className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-primary transition-colors group"
-            >
+            <button onClick={() => fetchBookings()} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-primary transition-colors group">
               Refresh <i className={`fas fa-sync-alt ${isLoading ? 'animate-spin text-primary' : ''}`}></i>
             </button>
           </div>
@@ -226,20 +182,24 @@ const SeatBooking = () => {
                         {seatsInRow.map((seatNum, idx) => {
                           const seatId = `${row}${seatNum}`;
                           const isSelected = selectedSeats.includes(seatId);
-                          const isBooked = alreadyBooked.includes(seatId);
+                          const isBooked = bookedStatus.booked.includes(seatId);
+                          const isLocked = bookedStatus.locked.includes(seatId);
+                          const isUnavailable = isBooked || isLocked;
 
                           return (
                             <React.Fragment key={seatId}>
                               <button
                                 onClick={() => handleSeatClick(seatId)}
-                                disabled={isBooked}
+                                disabled={isUnavailable}
                                 className={`
                                   relative w-8 h-8 md:w-11 md:h-11 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300
                                   ${isBooked 
                                     ? 'bg-white/5 border-white/10 cursor-not-allowed opacity-30 shadow-inner' 
-                                    : isSelected 
-                                      ? 'border-primary bg-primary text-white shadow-glow scale-110 z-10' 
-                                      : 'bg-[#120808] border-white/20 text-white hover:border-white'}
+                                    : isLocked
+                                      ? 'bg-white/5 border-white/10 cursor-not-allowed opacity-60'
+                                      : isSelected 
+                                        ? 'border-primary bg-primary text-white shadow-glow scale-110 z-10' 
+                                        : 'bg-[#120808] border-white/20 text-white hover:border-white'}
                                 `}
                               >
                                 {isBooked ? (
@@ -247,7 +207,7 @@ const SeatBooking = () => {
                                         <div className="w-full h-px bg-white/60 rotate-45 transform"></div>
                                         <div className="w-full h-px bg-white/60 -rotate-45 transform absolute"></div>
                                     </div>
-                                ) : seatId}
+                                ) : isLocked ? <i className="fas fa-clock text-[8px] opacity-40"></i> : seatId}
                               </button>
                               {(idx + 1) === 7 && <div className="w-10 md:w-24" />}
                             </React.Fragment>
@@ -260,44 +220,41 @@ const SeatBooking = () => {
               </div>
             </div>
           )}
+
+          <div className="flex justify-center gap-6 md:gap-14 pb-12 pt-8 opacity-40">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-[#120808] border border-white/20" />
+              <span className="text-[10px] font-black uppercase text-white tracking-widest">Available</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-primary shadow-glow" />
+              <span className="text-[10px] font-black uppercase text-white tracking-widest">Selected</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-white/5 opacity-30 relative overflow-hidden">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1px] bg-white rotate-45"></div>
+              </div>
+              <span className="text-[10px] font-black uppercase text-white tracking-widest">Sold</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-white/5 opacity-60 flex items-center justify-center">
+                <i className="fas fa-clock text-[6px]"></i>
+              </div>
+              <span className="text-[10px] font-black uppercase text-white tracking-widest text-[#999]">Processing</span>
+            </div>
+          </div>
         </div>
       </main>
 
       <AnimatePresence>
         {showModal && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative w-full max-w-md bg-[#120808] p-10 rounded-[3rem] border border-white/10 text-center shadow-3xl"
-            >
-              <h3 className="text-3xl font-black text-white mb-8 italic">Finalize Booking</h3>
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-md bg-[#120808] p-10 rounded-[3rem] border border-white/10 text-center">
+              <h3 className="text-3xl font-black text-white mb-8 italic text-primary">Finalize Booking</h3>
               <form onSubmit={handleFinalPayment} className="flex flex-col gap-5">
-                <input 
-                  type="text" required placeholder="Full Name"
-                  value={userDetails.name}
-                  onChange={(e) => setUserDetails({...userDetails, name: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-primary focus:outline-none font-bold"
-                />
-                <input 
-                  type="email" required placeholder="Email Address"
-                  value={userDetails.email}
-                  onChange={(e) => setUserDetails({...userDetails, email: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-primary focus:outline-none font-bold"
-                />
-                <div className="mt-4 pt-4 border-t border-white/5 text-left flex flex-col gap-2">
-                  <div className="flex justify-between uppercase text-[10px] font-black text-white/40">
-                    <span>Selected: {selectedSeats.join(', ')}</span>
-                    <span className="text-primary">Total: ₹{selectedSeats.length * pricePerTicket}</span>
-                  </div>
-                </div>
-                <button 
-                  type="submit" disabled={isSubmitting}
-                  className="mt-6 w-full py-5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-glow active:scale-95 transition-all disabled:opacity-50"
-                >
-                  {isSubmitting ? 'PROCESSING...' : 'CONFIRM & PAY'}
-                </button>
+                <input type="text" required placeholder="Full Name" value={userDetails.name} onChange={(e) => setUserDetails({...userDetails, name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold" />
+                <input type="email" required placeholder="Email Address" value={userDetails.email} onChange={(e) => setUserDetails({...userDetails, email: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold" />
+                <button type="submit" disabled={isSubmitting} className="mt-6 w-full py-5 bg-primary text-white rounded-2xl font-black uppercase shadow-glow transition-all">{isSubmitting ? 'PROCESSING...' : 'CONFIRM & PAY'}</button>
                 <button type="button" onClick={() => setShowModal(false)} className="text-[10px] font-black text-white/40 uppercase mt-2">CANCEL</button>
               </form>
             </motion.div>
@@ -310,9 +267,9 @@ const SeatBooking = () => {
           <motion.div initial={{ y: 200 }} animate={{ y: 0 }} exit={{ y: 200 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[500px] z-50 bg-[#1a0808]/95 p-5 rounded-[2.5rem] flex items-center justify-between shadow-2xl border border-white/10 backdrop-blur-3xl">
             <div className="flex flex-col pl-4">
                 <span className="text-xs font-black text-primary uppercase">{selectedSeats.length} SEATS</span>
-                <button onClick={handleClear} className="text-[10px] font-black text-white/40 uppercase text-left">Clear selection</button>
+                <button onClick={() => setSelectedSeats([])} className="text-[10px] font-black text-white/40 uppercase text-left">Clear</button>
             </div>
-            <button onClick={handlePayClick} className="px-10 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-tight shadow-glow active:scale-95 transition-all">CHECKOUT ₹{selectedSeats.length * pricePerTicket}</button>
+            <button onClick={handlePayClick} className="px-10 py-4 bg-primary text-white rounded-2xl font-black uppercase shadow-glow">CHECKOUT ₹{selectedSeats.length * pricePerTicket}</button>
           </motion.div>
         )}
       </AnimatePresence>

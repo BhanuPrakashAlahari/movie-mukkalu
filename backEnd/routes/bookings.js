@@ -11,31 +11,30 @@ const razorpay = require('../utils/razorpay');
 const LOCK_TIMEOUT = 10 * 60 * 1000;
 const TICKET_PRICE = 100;
 
-// Get all booked OR locked seats for a specific show
+// Get all booked AND locked seats separately
 router.get('/:dateId/:showTime', async (req, res) => {
   try {
     const { dateId, showTime } = req.params;
     
     // 1. Get confirmed bookings
     const bookings = await TicketBooking.find({ dateId, showTime });
-    const bookedSeats = bookings.reduce((acc, booking) => [...acc, ...booking.seats], []);
+    const bookedSeats = bookings.reduce((acc, b) => [...acc, ...b.seats], []);
     
-    // 2. Get active locks (EXCLUDING those locked by this session)
-    // This allows the current user to see their own locked seats as 'available' 
-    // to their frontend logic (so they stay selected)
+    // 2. Get active locks by OTHERS
     const locks = await SeatLock.find({ 
       dateId, 
       showTime, 
       expiresAt: { $gt: new Date() },
-      lockedBy: { $ne: req.sessionId } // Don't block the user from their own locks
+      lockedBy: { $ne: req.sessionId } 
     });
     const lockedByOthers = locks.map(l => l.seatId);
 
-    // Combine confirmed bookings + seats locked by others
-    const allUnavailableSeats = [...new Set([...bookedSeats, ...lockedByOthers])];
-    
-    res.json(allUnavailableSeats);
+    res.json({
+      booked: [...new Set(bookedSeats)],
+      locked: [...new Set(lockedByOthers)]
+    });
   } catch (err) {
+    console.error("Fetch seat status error:", err);
     res.status(500).json({ message: err.message });
   }
 });
