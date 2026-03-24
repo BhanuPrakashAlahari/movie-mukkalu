@@ -3,149 +3,112 @@ const router = express.Router();
 const TicketBooking = require('../models/Booking');
 const SeatLock = require('../models/SeatLock');
 const Order = require('../models/Order');
+const BookingSession = require('../models/BookingSession');
 const { sendBookingEmail } = require('../utils/emailService');
 const crypto = require('crypto');
 const razorpay = require('../utils/razorpay');
 
-// LOCK_TIMEOUT in milliseconds (e.g. 10 minutes)
-const LOCK_TIMEOUT = 10 * 60 * 1000;
+// DYNAMIC LOCK TIMEOUTS
+const INITIAL_LOCK_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+const PAYMENT_LOCK_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 const TICKET_PRICE = 100;
 
-// Get all booked AND locked seats separately
+// Get all booked OR locked seats for a specific show
 router.get('/:dateId/:showTime', async (req, res) => {
   try {
     const { dateId, showTime } = req.params;
     
     // 1. Get confirmed bookings
     const bookings = await TicketBooking.find({ dateId, showTime });
-    const bookedSeats = bookings.reduce((acc, b) => [...acc, ...b.seats], []);
+    const bookedSeats = bookings.reduce((acc, booking) => [...acc, ...booking.seats], []);
     
-    // 2. Get active locks by OTHERS
+    // 2. Get active locks (EXCLUDING those locked by this session)
+    // This allows the current user to see their own locked seats as 'available' 
+    // to their frontend logic (so they stay selected)
     const locks = await SeatLock.find({ 
       dateId, 
       showTime, 
       expiresAt: { $gt: new Date() },
-      lockedBy: { $ne: req.sessionId } 
+      lockedBy: { $ne: req.sessionId } // Don't block the user from their own locks
     });
     const lockedByOthers = locks.map(l => l.seatId);
 
-    res.json({
-      booked: [...new Set(bookedSeats)],
-      locked: [...new Set(lockedByOthers)]
-    });
+    // Combine confirmed bookings + seats locked by others
+    const allUnavailableSeats = [...new Set([...bookedSeats, ...lockedByOthers])];
+    
+    res.json(allUnavailableSeats);
   } catch (err) {
-    console.error("Fetch seat status error:", err);
     res.status(500).json({ message: err.message });
   }
 });
 
-// Helper to generate suggestions when seats are taken
-async function suggestAlternativeSeats(dateId, showTime, conflictSeats) {
-  try {
-    const rows = ['A', 'B', 'C', 'D', 'E'];
-    const seatsPerRow = 14;
-    
-    // 1. Get ALL unavailable seats (booked + locked)
-    const booked = await TicketBooking.find({ dateId, showTime });
-    const bookedArr = booked.reduce((acc, b) => [...acc, ...b.seats], []);
-    const locked = await SeatLock.find({ dateId, showTime, expiresAt: { $gt: new Date() } });
-    const lockedArr = locked.map(l => l.seatId);
-    const unavailable = new Set([...bookedArr, ...lockedArr]);
-
-    let suggestions = [];
-
-    // 2. Logic: For each conflict seat, find the nearest free seat in the SAME row
-    for (const seat of conflictSeats) {
-      const row = seat.charAt(0);
-      const num = parseInt(seat.substring(1));
-      
-      // Look left and right in the same row
-      for (let offset = 1; offset <= 5; offset++) {
-        const left = `${row}${num - offset}`;
-        const right = `${row}${num + offset}`;
-        
-        if (num - offset >= 1 && !unavailable.has(left) && !suggestions.includes(left)) {
-          suggestions.push(left);
-          if (suggestions.length >= 3) break;
-        }
-        if (num + offset <= seatsPerRow && !unavailable.has(right) && !suggestions.includes(right)) {
-          suggestions.push(right);
-          if (suggestions.length >= 3) break;
-        }
-      }
-      if (suggestions.length >= 3) break;
-    }
-
-    // 3. If row is full, just pick any available seats
-    if (suggestions.length === 0) {
-      for (const r of rows) {
-        for (let n = 1; n <= seatsPerRow; n++) {
-          const s = `${r}${n}`;
-          if (!unavailable.has(s)) {
-            suggestions.push(s);
-            if (suggestions.length >= 3) break;
-          }
-        }
-        if (suggestions.length >= 3) break;
-      }
-    }
-
-    return suggestions.slice(0, 4);
-  } catch (err) {
-    return [];
-  }
-}
-
+/**
+ * Atomic Seat Locking
+ * Requirements:
+ * - Lock ONLY if AVAILABLE OR EXPIRED
+ * - Allow SAME session to refresh its lock
+ * - Prevent others from overriding active locks
+ */
 router.post('/lock-seats', async (req, res) => {
   const { dateId, showTime, seatIds } = req.body;
   const sessionId = req.sessionId;
 
-  if (!dateId || !showTime || !seatIds || !Array.isArray(seatIds)) {
-    return res.status(400).json({ success: false, reason: "INVALID_DATA" });
+  if (!dateId || !showTime || !seatIds || !Array.isArray(seatIds) || seatIds.length === 0) {
+    return res.status(400).json({ message: "Invalid locking data" });
   }
 
   try {
     const now = new Date();
-    const expiry = new Date(now.getTime() + LOCK_TIMEOUT);
+    const expiry = new Date(now.getTime() + INITIAL_LOCK_TIMEOUT);
 
-    // 1. Check for Conflicts (Booked OR Locked by Others)
-    const bookings = await TicketBooking.find({ dateId, showTime, seats: { $in: seatIds } });
-    const locks = await SeatLock.find({ 
-      dateId, 
-      showTime, 
-      seatId: { $in: seatIds },
-      lockedBy: { $ne: sessionId }, // We allow refreshing our OWN locks
-      expiresAt: { $gt: now }
+    // 1. Check current availability
+    const confirmedBookings = await TicketBooking.find({ dateId, showTime });
+    const bookedSeats = confirmedBookings.reduce((acc, b) => [...acc, ...b.seats], []);
+    
+    const activeSessions = await BookingSession.find({
+      dateId,
+      showTime,
+      expiresAt: { $gt: now },
+      status: { $in: ['LOCKED', 'PAYMENT_PENDING'] },
+      sessionId: { $ne: sessionId }
     });
+    const lockedByOthers = activeSessions.reduce((acc, s) => [...acc, ...s.seatIds], []);
+    
+    const allUnavailable = new Set([...bookedSeats, ...lockedByOthers]);
+    const unavailableInRequest = seatIds.filter(s => allUnavailable.has(s));
 
-    const unavailableFromBookings = bookings.reduce((acc, b) => [...acc, ...b.seats.filter(s => seatIds.includes(s))], []);
-    const unavailableFromLocks = locks.map(l => l.seatId);
-    const allConflicts = [...new Set([...unavailableFromBookings, ...unavailableFromLocks])];
-
-    if (allConflicts.length > 0) {
-      const suggestions = await suggestAlternativeSeats(dateId, showTime, allConflicts);
-      return res.status(200).json({
-        success: false,
-        reason: "SEAT_UNAVAILABLE",
-        unavailableSeats: allConflicts,
-        suggestedSeats: suggestions
-      });
+    if (unavailableInRequest.length > 0) {
+      return res.status(200).json({ success: false, reason: "SEAT_UNAVAILABLE", unavailableSeats: unavailableInRequest });
     }
 
-    // 2. ATOMIC LOCKING (All-or-Nothing)
-    // Upsert our locks for all seats
+    // 2. CREATE BookingSession (Status: LOCKED, Expiry: 2 mins)
+    const bookingSession = new BookingSession({
+      sessionId,
+      dateId,
+      showTime,
+      seatIds,
+      status: 'LOCKED',
+      expiresAt: expiry
+    });
+    await bookingSession.save();
+
+    // 3. APPLY individual SeatLocks
     await Promise.all(seatIds.map(async (seatId) => {
       await SeatLock.findOneAndUpdate(
         { dateId, showTime, seatId },
-        { lockedBy: sessionId, expiresAt: expiry },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
+        { 
+          lockedBy: sessionId, 
+          bookingSessionId: bookingSession._id, 
+          expiresAt: expiry 
+        },
+        { upsert: true, new: true }
       );
     }));
 
-    res.json({ success: true, expiresAt: expiry });
+    res.json({ success: true, bookingSessionId: bookingSession._id, expiresAt: expiry });
   } catch (err) {
     console.error("Locking error:", err);
-    res.status(500).json({ success: false, reason: "SERVER_ERROR", error: err.message });
+    res.status(500).json({ success: false, message: "Seat locking failed safely." });
   }
 });
 
@@ -153,65 +116,49 @@ router.post('/lock-seats', async (req, res) => {
  * Step 1: Create a Razorpay Order
  */
 router.post('/create-order', async (req, res) => {
-  const { dateId, showTime, seatIds } = req.body;
+  const { bookingSessionId } = req.body;
   const sessionId = req.sessionId;
 
-  if (!dateId || !showTime || !seatIds || !Array.isArray(seatIds) || seatIds.length === 0) {
-    return res.status(400).json({ message: "Invalid order data" });
-  }
-
   try {
+    const session = await BookingSession.findById(bookingSessionId);
     const now = new Date();
     
-    // Debug info for the 'The id provided does not exist' error
-    // (This usually happens if Backend used KEY A but Frontend uses KEY B)
-    console.log(`[ORDER] Creating order for session ${sessionId.substring(0, 5)} using Key: ${(razorpay.key_id || 'unknown').substring(0, 10)}...`);
-
-    // 1. Validate that all seats are currently locked by this session and not expired
-    const activeLocks = await SeatLock.find({
-      dateId,
-      showTime,
-      seatId: { $in: seatIds },
-      lockedBy: sessionId,
-      expiresAt: { $gt: now }
-    });
-
-    if (activeLocks.length !== seatIds.length) {
-      return res.status(403).json({ 
-        message: "Seat reservation expired. Please select seats again." 
-      });
+    if (!session || session.status === 'FAILED' || session.expiresAt < now) {
+      return res.status(403).json({ message: "Session expired or invalid. Please re-select seats." });
     }
 
-    // 2. Calculate amount on server
-    const amount = seatIds.length * TICKET_PRICE;
+    // EXTEND EXPIRY: 5 minutes for payment phase
+    const extendedExpiry = new Date(now.getTime() + PAYMENT_LOCK_TIMEOUT);
+
+    // 2. Calculate amount
+    const amount = session.seatIds.length * TICKET_PRICE;
 
     // 3. Create Razorpay order
     const options = {
       amount: Math.round(amount * 100),
       currency: "INR",
-      receipt: `rcpt_${sessionId.substring(0, 5)}_${Date.now()}`,
-      notes: { sessionId, seatIds: seatIds.join(',') }
+      receipt: `rcpt_${session._id}`,
+      notes: { sessionId, bookingSessionId: session._id.toString() }
     };
 
     const razorOrder = await razorpay.orders.create(options);
 
-    // 4. Store PENDING order in DB
-    const pendingOrder = new Order({
-      orderId: razorOrder.id,
-      sessionId,
-      dateId,
-      showTime,
-      seatIds,
-      amount,
-      status: 'PENDING'
-    });
+    // 4. UPDATE SESSION: Status PAYMENT_PENDING, extend expiry
+    session.status = 'PAYMENT_PENDING';
+    session.orderId = razorOrder.id;
+    session.expiresAt = extendedExpiry;
+    await session.save();
 
-    await pendingOrder.save();
+    // 5. EXTEND individual SeatLocks to match
+    await SeatLock.updateMany(
+      { bookingSessionId: session._id },
+      { expiresAt: extendedExpiry }
+    );
 
     res.json(razorOrder);
   } catch (err) {
-    console.error('Razorpay Error:', err);
-    res.status(500).json({ message: "Error creating Razorpay order" });
+    console.error('Order creation error:', err);
+    res.status(500).json({ message: "Error creating payment order." });
   }
 });
 
@@ -252,18 +199,19 @@ router.post('/verify-payment', async (req, res) => {
       return res.status(200).json({ status: "success", booking: existing, message: "Booking recovered." });
     }
 
-    // 2. Fetch Order from DB
-    const order = await Order.findOne({ orderId: razorpay_order_id });
-    if (!order) {
+    // 2. Fetch Session from DB
+    const session = await BookingSession.findOne({ orderId: razorpay_order_id });
+    if (!session) {
       return res.status(404).json({ message: "Transaction record missing in database." });
     }
 
-    if (order.status === 'SUCCESS') {
+    if (session.status === 'CONFIRMED') {
       return res.status(200).json({ status: "success", message: "Transaction completed." });
     }
 
-    // 3. Destructure and Provide Defaults for safety
-    const { dateId, showTime, seatIds: seats, amount: totalPrice, sessionId: finalSessionId } = order;
+    // 3. Destructure
+    const { dateId, showTime, seatIds: seats, sessionId: finalSessionId } = session;
+    const totalPrice = seats.length * TICKET_PRICE;
     
     // Safely destructure bookingDetails
     const details = bookingDetails || {};
@@ -284,8 +232,8 @@ router.post('/verify-payment', async (req, res) => {
       if (myBooking) return res.status(200).json({ status: "success", booking: myBooking });
 
       console.error(`[CRITICAL] Collision during verification: ${razorpay_order_id}`);
-      order.status = 'FAILED_COLLISION';
-      await order.save();
+      session.status = 'FAILED';
+      await session.save();
       return res.status(409).json({ message: "Seats were lost during payment. Contact support with Order ID for refund." });
     }
 
@@ -307,18 +255,13 @@ router.post('/verify-payment', async (req, res) => {
 
     const newBooking = await booking.save();
 
-    // 7. Update Order to SUCCESS
-    order.status = 'SUCCESS';
-    order.paymentId = razorpay_payment_id;
-    order.signature = razorpay_signature;
-    await order.save();
+    // 7. Update Session to CONFIRMED
+    session.status = 'CONFIRMED';
+    await session.save();
     
     // 8. Release any remaining locks
     await SeatLock.deleteMany({
-      dateId,
-      showTime,
-      seatId: { $in: seats },
-      lockedBy: finalSessionId
+      bookingSessionId: session._id
     });
 
     // 9. Send confirmation email
@@ -332,6 +275,40 @@ router.post('/verify-payment', async (req, res) => {
       message: "Internal error during finalization.",
       error: err.message 
     });
+  }
+});
+
+/**
+ * Step 3: Explicit Order Cancellation/Failure
+ * Releases seats immediately instead of waiting for 10 min TTL.
+ */
+router.post('/cancel-order', async (req, res) => {
+  const { bookingSessionId } = req.body;
+  const sessionId = req.sessionId;
+
+  try {
+    const session = await BookingSession.findOne({ _id: bookingSessionId, sessionId });
+    if (!session) {
+      return res.status(404).json({ message: "Session not found." });
+    }
+
+    if (session.status !== 'CONFIRMED') {
+      session.status = 'FAILED';
+      await session.save();
+
+      // Clear the locks
+      await SeatLock.deleteMany({
+        bookingSessionId: session._id,
+        lockedBy: sessionId
+      });
+      
+      return res.json({ message: "Order cancelled and seats released successfully." });
+    }
+
+    res.status(400).json({ message: "Confirmed orders cannot be cancelled." });
+  } catch (err) {
+    console.error("Cancellation error:", err);
+    res.status(500).json({ message: "Error during order cancellation." });
   }
 });
 

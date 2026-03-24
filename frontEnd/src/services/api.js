@@ -93,12 +93,11 @@ export const lockSeats = async (dateId, showTime, seatIds) => {
 };
 
 /**
- * Creates a Razorpay Order
- * Now requires seat context for server-side price calculation and validation
+ * Creates a Razorpay Order linked to a BookingSession
  */
-export const createRazorpayOrder = async (dateId, showTime, seatIds) => {
+export const createRazorpayOrder = async (bookingSessionId) => {
   try {
-    const response = await api.post('/bookings/create-order', { dateId, showTime, seatIds });
+    const response = await api.post('/bookings/create-order', { bookingSessionId });
     return response.data;
   } catch (error) {
     console.error('Razorpay Order Error:', error);
@@ -115,6 +114,19 @@ export const verifyPayment = async (paymentData) => {
     return response.data;
   } catch (error) {
     console.error('Payment Verification Error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Explicitly cancels a BookingSession and unlocks seats
+ */
+export const cancelOrder = async (bookingSessionId) => {
+  try {
+    const response = await api.post('/bookings/cancel-order', { bookingSessionId });
+    return response.data;
+  } catch (error) {
+    console.error('Cancellation error:', error);
     throw error;
   }
 };

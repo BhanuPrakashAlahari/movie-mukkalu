@@ -14,8 +14,13 @@ const seatLockSchema = new mongoose.Schema({
     required: true,
   },
   lockedBy: {
-    type: String,
+    type: String, // Browser sessionId
     required: true,
+  },
+  bookingSessionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'BookingSession',
+    index: true,
   },
   expiresAt: {
     type: Date,
