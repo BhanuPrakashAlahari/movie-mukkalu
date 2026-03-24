@@ -39,93 +39,113 @@ router.get('/:dateId/:showTime', async (req, res) => {
   }
 });
 
-/**
- * Atomic Seat Locking
- * Requirements:
- * - Lock ONLY if AVAILABLE OR EXPIRED
- * - Allow SAME session to refresh its lock
- * - Prevent others from overriding active locks
- */
+// Helper to generate suggestions when seats are taken
+async function suggestAlternativeSeats(dateId, showTime, conflictSeats) {
+  try {
+    const rows = ['A', 'B', 'C', 'D', 'E'];
+    const seatsPerRow = 14;
+    
+    // 1. Get ALL unavailable seats (booked + locked)
+    const booked = await TicketBooking.find({ dateId, showTime });
+    const bookedArr = booked.reduce((acc, b) => [...acc, ...b.seats], []);
+    const locked = await SeatLock.find({ dateId, showTime, expiresAt: { $gt: new Date() } });
+    const lockedArr = locked.map(l => l.seatId);
+    const unavailable = new Set([...bookedArr, ...lockedArr]);
+
+    let suggestions = [];
+
+    // 2. Logic: For each conflict seat, find the nearest free seat in the SAME row
+    for (const seat of conflictSeats) {
+      const row = seat.charAt(0);
+      const num = parseInt(seat.substring(1));
+      
+      // Look left and right in the same row
+      for (let offset = 1; offset <= 5; offset++) {
+        const left = `${row}${num - offset}`;
+        const right = `${row}${num + offset}`;
+        
+        if (num - offset >= 1 && !unavailable.has(left) && !suggestions.includes(left)) {
+          suggestions.push(left);
+          if (suggestions.length >= 3) break;
+        }
+        if (num + offset <= seatsPerRow && !unavailable.has(right) && !suggestions.includes(right)) {
+          suggestions.push(right);
+          if (suggestions.length >= 3) break;
+        }
+      }
+      if (suggestions.length >= 3) break;
+    }
+
+    // 3. If row is full, just pick any available seats
+    if (suggestions.length === 0) {
+      for (const r of rows) {
+        for (let n = 1; n <= seatsPerRow; n++) {
+          const s = `${r}${n}`;
+          if (!unavailable.has(s)) {
+            suggestions.push(s);
+            if (suggestions.length >= 3) break;
+          }
+        }
+        if (suggestions.length >= 3) break;
+      }
+    }
+
+    return suggestions.slice(0, 4);
+  } catch (err) {
+    return [];
+  }
+}
+
 router.post('/lock-seats', async (req, res) => {
   const { dateId, showTime, seatIds } = req.body;
   const sessionId = req.sessionId;
 
   if (!dateId || !showTime || !seatIds || !Array.isArray(seatIds)) {
-    return res.status(400).json({ message: "Invalid locking data" });
+    return res.status(400).json({ success: false, reason: "INVALID_DATA" });
   }
 
-  const now = new Date();
-  const expiry = new Date(now.getTime() + LOCK_TIMEOUT);
-
   try {
-    // 1. First, check if any seat is already booked (Confirmed)
-    const confirmedBookings = await TicketBooking.find({ 
+    const now = new Date();
+    const expiry = new Date(now.getTime() + LOCK_TIMEOUT);
+
+    // 1. Check for Conflicts (Booked OR Locked by Others)
+    const bookings = await TicketBooking.find({ dateId, showTime, seats: { $in: seatIds } });
+    const locks = await SeatLock.find({ 
       dateId, 
       showTime, 
-      seats: { $in: seatIds } 
+      seatId: { $in: seatIds },
+      lockedBy: { $ne: sessionId }, // We allow refreshing our OWN locks
+      expiresAt: { $gt: now }
     });
-    
-    if (confirmedBookings.length > 0) {
-      return res.status(409).json({ 
-        message: "One or more seats have already been booked by another user.",
-        isBooked: true 
+
+    const unavailableFromBookings = bookings.reduce((acc, b) => [...acc, ...b.seats.filter(s => seatIds.includes(s))], []);
+    const unavailableFromLocks = locks.map(l => l.seatId);
+    const allConflicts = [...new Set([...unavailableFromBookings, ...unavailableFromLocks])];
+
+    if (allConflicts.length > 0) {
+      const suggestions = await suggestAlternativeSeats(dateId, showTime, allConflicts);
+      return res.status(200).json({
+        success: false,
+        reason: "SEAT_UNAVAILABLE",
+        unavailableSeats: allConflicts,
+        suggestedSeats: suggestions
       });
     }
 
-    // 2. Attempt atomic lock for each seat
-    // We use findOneAndUpdate with filter on (lockedBy OR expired)
-    const results = await Promise.all(seatIds.map(async (seatId) => {
-      try {
-        return await SeatLock.findOneAndUpdate(
-          { 
-            dateId, 
-            showTime, 
-            seatId, 
-            $or: [
-              { lockedBy: sessionId },          // It's mine
-              { expiresAt: { $lt: now } }       // Or it has expired
-            ]
-          },
-          { 
-            lockedBy: sessionId, 
-            expiresAt: expiry 
-          },
-          { 
-            upsert: true, // If it doesn't exist, create it (assuming it's free)
-            new: true,
-            runValidators: true,
-            setDefaultsOnInsert: true
-          }
-        );
-      } catch (err) {
-        // This usually triggered by unique index constraint when $or fails to match
-        // (meaning someone else has an active lock)
-        return null; 
-      }
+    // 2. ATOMIC LOCKING (All-or-Nothing)
+    // Upsert our locks for all seats
+    await Promise.all(seatIds.map(async (seatId) => {
+      await SeatLock.findOneAndUpdate(
+        { dateId, showTime, seatId },
+        { lockedBy: sessionId, expiresAt: expiry },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
     }));
 
-    // If any seat failed to lock (returned null), rollback and return error
-    if (results.some(r => r === null)) {
-      // Release any locks we just took for atomic rollback effect
-      // (Optional: standard behavior for seat locking is usually to just fail the whole set)
-      await SeatLock.deleteMany({ 
-        dateId, 
-        showTime, 
-        seatId: { $in: seatIds }, 
-        lockedBy: sessionId,
-        expiresAt: expiry // Only clear the ones we *just* set
-      });
-
-      return res.status(409).json({ 
-        message: "Some seats are currently being locked by someone else. Please refresh and try again.",
-        isLocked: true
-      });
-    }
-
-    res.json({ status: "locked", expiresAt: expiry });
+    res.json({ success: true, expiresAt: expiry });
   } catch (err) {
     console.error("Locking error:", err);
-    res.status(500).json({ message: "Seat locking failed due to server error." });
+    res.status(500).json({ success: false, reason: "SERVER_ERROR", error: err.message });
   }
 });
 

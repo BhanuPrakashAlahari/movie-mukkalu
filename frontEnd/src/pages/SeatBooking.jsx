@@ -9,7 +9,6 @@ const SeatBooking = () => {
   const { dateId, showTime } = useParams();
   const navigate = useNavigate();
   
-  // Find current movie details
   const currentMovie = MOVIES_DATA[dateId]?.find(m => m.slug === showTime);
   const movieName = currentMovie?.name || "Movie";
   const poster = currentMovie?.poster || "";
@@ -20,11 +19,11 @@ const SeatBooking = () => {
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userDetails, setUserDetails] = useState({ name: '', email: '' });
+  const [conflictData, setConflictData] = useState(null);
   
   const pricePerTicket = 100;
 
   useEffect(() => {
-    // Load Razorpay Script
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
@@ -49,7 +48,6 @@ const SeatBooking = () => {
 
   useEffect(() => {
     fetchBookings();
-    // Auto refresh every 20 seconds for real-time blocking
     const intervalId = setInterval(() => fetchBookings(false), 20000);
     return () => clearInterval(intervalId);
   }, [dateId, showTime]);
@@ -58,12 +56,18 @@ const SeatBooking = () => {
 
   const handleSeatClick = (seatId) => {
     if (combinedUnavailable.includes(seatId)) return;
-    
     setSelectedSeats(prev => 
-      prev.includes(seatId) 
-        ? prev.filter(s => s !== seatId) 
-        : [...prev, seatId]
+      prev.includes(seatId) ? prev.filter(s => s !== seatId) : [...prev, seatId]
     );
+  };
+
+  const handleApplySuggestions = (suggestions) => {
+    setSelectedSeats(prev => {
+      const available = prev.filter(s => !conflictData.unavailableSeats.includes(s));
+      return [...available, ...suggestions].slice(0, prev.length);
+    });
+    setConflictData(null);
+    fetchBookings(); 
   };
 
   const handlePayClick = () => {
@@ -80,11 +84,21 @@ const SeatBooking = () => {
 
     try {
       setIsSubmitting(true);
-      await lockSeats(dateId, showTime, selectedSeats);
+      const lockResponse = await lockSeats(dateId, showTime, selectedSeats);
+      
+      if (!lockResponse.success) {
+        if (lockResponse.reason === "SEAT_UNAVAILABLE") {
+          setConflictData(lockResponse);
+          setShowModal(false);
+        } else {
+          throw new Error(lockResponse.message || "Locking failed");
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
       const order = await createRazorpayOrder(dateId, showTime, selectedSeats);
       
-      if (!order || !order.id) throw new Error("Order creation failed");
-
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SUx71yfaQ42aCV',
         amount: order.amount,
@@ -121,7 +135,7 @@ const SeatBooking = () => {
             }
           } catch (err) {
             console.error('Verification failed:', err);
-            alert("Payment verification failed. Contact support with Order ID.");
+            alert("Payment verification failed.");
           } finally {
             setIsSubmitting(false);
           }
@@ -136,7 +150,7 @@ const SeatBooking = () => {
 
     } catch (error) {
       console.error('Checkout failed:', error);
-      alert(error.message || 'Payment initiation failed.');
+      alert('Payment initiation failed.');
       setIsSubmitting(false);
     }
   };
@@ -247,7 +261,42 @@ const SeatBooking = () => {
       </main>
 
       <AnimatePresence>
-        {showModal && (
+        {conflictData && (
+          <div className="fixed inset-0 z-[250] flex items-center justify-center p-6 bg-black/95 backdrop-blur-3xl">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-md bg-[#120808] p-10 rounded-[3rem] border border-primary/30 text-center shadow-3xl">
+              <h3 className="text-3xl font-black text-white mb-4 italic text-primary uppercase">Seat Conflict</h3>
+              <p className="text-white/60 text-sm mb-8">Some seats were already taken. Would you like to use these nearby suggestions instead?</p>
+              
+              <div className="flex flex-col gap-3 mb-8">
+                <div className="text-[10px] font-black text-white/30 uppercase tracking-tighter mb-1">UNAVAILABLE</div>
+                <div className="flex justify-center gap-2">
+                  {conflictData.unavailableSeats.map(s => <span key={s} className="px-4 py-2 bg-white/5 rounded-xl text-white/40 border border-white/10 line-through decoration-primary">{s}</span>)}
+                </div>
+                
+                <div className="text-[10px] font-black text-primary uppercase tracking-tighter mt-4 mb-1">SUGGESTED ALTERNATIVES</div>
+                <div className="flex justify-center gap-2 flex-wrap">
+                  {conflictData.suggestedSeats.length > 0 ? (
+                    conflictData.suggestedSeats.map(s => <span key={s} className="px-4 py-2 bg-primary/10 rounded-xl text-primary border border-primary/20 font-black">{s}</span>)
+                  ) : <span className="text-white/40">None nearby</span>}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={() => handleApplySuggestions(conflictData.suggestedSeats)}
+                  className="w-full py-5 bg-primary text-white rounded-2xl font-black uppercase hover:shadow-glow-lg transition-all"
+                >
+                  APPLY SUGGESTIONS
+                </button>
+                <button onClick={() => setConflictData(null)} className="py-2 text-[10px] font-black text-white/40 uppercase tracking-tight">GO BACK TO SEAT MAP</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showModal && !conflictData && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-md bg-[#120808] p-10 rounded-[3rem] border border-white/10 text-center">
               <h3 className="text-3xl font-black text-white mb-8 italic text-primary">Finalize Booking</h3>
@@ -263,7 +312,7 @@ const SeatBooking = () => {
       </AnimatePresence>
 
       <AnimatePresence>
-        {selectedSeats.length > 0 && !showModal && (
+        {selectedSeats.length > 0 && !showModal && !conflictData && (
           <motion.div initial={{ y: 200 }} animate={{ y: 0 }} exit={{ y: 200 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[500px] z-50 bg-[#1a0808]/95 p-5 rounded-[2.5rem] flex items-center justify-between shadow-2xl border border-white/10 backdrop-blur-3xl">
             <div className="flex flex-col pl-4">
                 <span className="text-xs font-black text-primary uppercase">{selectedSeats.length} SEATS</span>
