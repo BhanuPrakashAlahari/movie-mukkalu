@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
       return res.status(400).json({ message: "Missing dateId or showTime in query parameters." });
     }
 
-    // Logic is identical to the path-param version
+    // Reverted to exact match as requested
     const bookings = await TicketBooking.find({ dateId, showTime });
     const confirmedSeats = bookings.reduce((acc, booking) => [...acc, ...booking.seats], []);
 
@@ -142,7 +142,7 @@ router.post('/lock-seats', async (req, res) => {
     const now = new Date();
     const expiry = new Date(now.getTime() + INITIAL_LOCK_TIMEOUT);
 
-    // 1. Check current availability
+    // 1. Check current availability (Reverted to exact match)
     const confirmedBookings = await TicketBooking.find({ dateId, showTime });
     const bookedSeats = confirmedBookings.reduce((acc, b) => [...acc, ...b.seats], []);
 
