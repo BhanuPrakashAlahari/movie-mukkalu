@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import VideoPlayer from '../components/ui/video-player';
 import { getBookedSeats, lockSeats, createRazorpayOrder, verifyPayment, cancelOrder } from '../services/api';
@@ -44,7 +44,7 @@ const SeatBooking = () => {
 
   useEffect(() => {
     fetchBookings();
-    const intervalId = setInterval(() => fetchBookings(false), 60000);
+    const intervalId = setInterval(() => fetchBookings(false), 4000);
     return () => clearInterval(intervalId);
   }, [dateId, showTime]);
 
@@ -233,8 +233,12 @@ const SeatBooking = () => {
               <span className="text-[10px] font-black text-primary uppercase tracking-widest">{selectedSeats.length} SEATS SELECTED</span>
               <span className="text-[13px] font-black text-white/60 uppercase mt-1">{selectedSeats.join(", ")}</span>
             </div>
-            <button onClick={handlePayClick} disabled={isSubmitting} className="px-10 md:px-14 py-3 md:py-3.5 bg-primary text-white rounded-xl font-black uppercase text-xs shadow-glow active:scale-95 disabled:opacity-50">
-              PAY ₹{calculateTotal(selectedSeats.length)}
+            <button onClick={handlePayClick} disabled={isSubmitting} className="px-10 md:px-14 py-3 md:py-3.5 bg-primary text-white rounded-xl font-black uppercase text-xs shadow-glow active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+              {isSubmitting ? (
+                <i className="fas fa-circle-notch animate-spin text-sm"></i>
+              ) : (
+                <>PAY ₹{calculateTotal(selectedSeats.length)}</>
+              )}
             </button>
           </motion.div>
         )}
@@ -306,9 +310,13 @@ const SeatBooking = () => {
 
                 <button
                   type="submit" disabled={isSubmitting}
-                  className="w-full py-4 bg-primary text-white rounded-xl font-black tracking-widest text-sm shadow-glow active:scale-95 transition-all disabled:opacity-50 mt-2"
+                  className="w-full py-4 bg-primary text-white rounded-xl font-black tracking-widest text-sm shadow-glow active:scale-95 transition-all disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
                 >
-                  Proceed To Checkout
+                  {isSubmitting ? (
+                    <i className="fas fa-circle-notch animate-spin text-lg"></i>
+                  ) : (
+                    "Proceed To Checkout"
+                  )}
                 </button>
               </form>
             </div>
