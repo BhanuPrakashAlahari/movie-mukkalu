@@ -77,7 +77,14 @@ const SeatBooking = () => {
       setIsSubmitting(true);
       const lockResult = await lockSeats(dateId, showTime, selectedSeats);
       if (lockResult.success === false) {
-        alert(lockResult.message || "Seats unavailable.");
+        const unavailable = lockResult.unavailableSeats || [];
+        alert(unavailable.length > 0 
+          ? `Seats ${unavailable.join(', ')} were just taken. Selection updated.` 
+          : "Seats unavailable.");
+        
+        // Clear all selected seats so user can start a fresh transaction
+        setSelectedSeats([]);
+        
         fetchBookings(false);
         setIsSubmitting(false);
         return;
