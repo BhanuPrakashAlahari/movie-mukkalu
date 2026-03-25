@@ -2,7 +2,7 @@ export const MOVIES_DATA = {
   27: [
     {
       name: "Kushi",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243294/kushi_ffkvjj.jpg",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412257/WhatsApp_Image_2026-03-24_at_03.27.11_omxb6f.jpg",
       time: '10:00 AM - 1:00 PM',
       slug: '10-00-AM-01-00-PM',
       status: 'Available',
@@ -28,7 +28,7 @@ export const MOVIES_DATA = {
   28: [
     {
       name: "Orange",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296862/orange_phpxt3.jpg",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412256/WhatsApp_Image_2026-03-24_at_03.27.51_xlxu8j.jpg",
       time: '10:00 AM - 1:00 PM',
       slug: '10-00-AM-01-00-PM',
       status: 'Available',
@@ -62,7 +62,7 @@ export const MOVIES_DATA = {
     },
     {
       name: "Darling",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243227/darling_c8mplf.jpg",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412257/WhatsApp_Image_2026-03-24_at_03.29.31_fqchqx.jpg",
       time: '1:15 PM - 4:15 PM',
       slug: '01-15-PM-04-15-PM',
       status: 'Available',
@@ -88,7 +88,7 @@ export const MOVIES_DATA = {
     },
     {
       name: "Ee Nagaraniki Emaindhi",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296884/ene_dkpmbb.jpg",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412257/WhatsApp_Image_2026-03-24_at_03.30.56_cuxavb.jpg",
       time: '1:15 PM - 4:15 PM',
       slug: '01-15-PM-04-15-PM',
       status: 'Available',
@@ -96,7 +96,7 @@ export const MOVIES_DATA = {
     },
     {
       name: "Arjun Reddy",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243227/arjun_reddy_ex4bav.jpg",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412257/WhatsApp_Image_2026-03-24_at_03.31.47_t58oxx.jpg",
       time: '4:30 PM - 7:00 PM',
       slug: '04-30-PM-07-00-PM',
       status: 'Available',
