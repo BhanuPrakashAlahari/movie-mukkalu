@@ -81,8 +81,8 @@ export const MOVIES_DATA = {
     {
       name: "Nuvvu Naku Nachhav",
       poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296849/nnn_yiobqv.jpg",
-      time: '10:00 PM',
-      slug: '10-00-PM-01-00-AM',
+      time: '10:00 AM',
+      slug: '10-00-AM-01-00-PM',
       status: 'Available',
       trailer: "https://www.youtube.com/watch?v=9wbdREaW6uM"
     },

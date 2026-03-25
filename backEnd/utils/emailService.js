@@ -21,7 +21,7 @@ const sendBookingEmail = async (bookingDetails) => {
   const mailOptions = {
     from: `"Movie Mokkalu" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: `Confirmed: ${movieName} tickets for May ${dateId}`,
+    subject: `Confirmed: ${movieName} tickets for March ${dateId}`,
     html: `
       <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; background-color: #0d0d0d; color: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #333;">
         <div style="background-color: #e11d48; padding: 30px; text-align: center;">
@@ -36,7 +36,7 @@ const sendBookingEmail = async (bookingDetails) => {
             </div>
             <div style="flex: 1; padding-left: 20px;">
               <h2 style="margin: 0 0 10px; color: #e11d48; text-transform: uppercase;">${movieName}</h2>
-              <p style="margin: 5px 0; color: #999; font-size: 14px;"><strong>DATE:</strong> May ${dateId}, 2026</p>
+              <p style="margin: 5px 0; color: #999; font-size: 14px;"><strong>DATE:</strong> March ${dateId}, 2026</p>
               <p style="margin: 5px 0; color: #999; font-size: 14px;"><strong>TIME:</strong> ${displayTime}</p>
               <p style="margin: 5px 0; color: #999; font-size: 14px;"><strong>VENUE:</strong> CSE Block , E-102</p>
             </div>
@@ -98,7 +98,7 @@ const sendAdminBookingEmail = async (bookingDetails) => {
 
   const mailOptions = {
     from: `"Movie Mokkalu Admin" <${process.env.EMAIL_USER}>`,
-    to: 'ashoktech321@gmail.com',
+    to: 'ashoktech321@gmail.com, bhanuprakashalahari.04@gmail.com',
     subject: `New Booking: ${movieName} - ₹${totalPrice}`,
     html: `
       <h2>New Ticket Booking Received</h2>
@@ -114,7 +114,7 @@ const sendAdminBookingEmail = async (bookingDetails) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Admin notification sent to ashoktech321@gmail.com`);
+    console.log(`Admin notification sent to ashoktech321@gmail.com and bhanuprakashalahari.04@gmail.com`);
   } catch (error) {
     console.error('Error sending admin email:', error);
   }
