@@ -62,7 +62,8 @@ const sendBookingEmail = async (bookingDetails) => {
           <div style="text-align: center; border-top: 1px solid #333; padding-top: 30px;">
              <p style="color: #666; font-size: 13px; line-height: 1.6;">
                Please present this email at the cinema counter.<br>
-               Location: <strong>CSE BLOCK - (E-102)</strong>
+               Location: <strong>CSE BLOCK - (E-102)</strong><br>
+               <span style="color: #e11d48; font-weight: bold;">Note: Ticket money is non-refundable. Please arrive on time.</span>
              </p>
           </div>
         </div>

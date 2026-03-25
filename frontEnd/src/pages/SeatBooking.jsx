@@ -117,7 +117,7 @@ const SeatBooking = () => {
         name: "Movie Mokkalu",
         order_id: order.id,
         handler: async (res) => {
-          const result = await verifyPayment({ ...res, bookingDetails: { ...userDetails, dateId, showTime, seats: selectedSeats, totalPrice: calculateTotal(selectedSeats.length), movieName, poster } });
+          const result = await verifyPayment({ ...res, bookingDetails: { ...userDetails, dateId, showTime, seats: selectedSeats, totalPrice: calculateTotal(selectedSeats.length), movieName, poster, displayTime: currentMovie.time } });
           if (result.status === 'success') {
             alert("Booked!");
             navigate('/');
