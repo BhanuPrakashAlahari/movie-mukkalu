@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { MOVIES_DATA } from '../data/movies';
@@ -14,7 +14,16 @@ const Booking = () => {
     { id: 30, label: 'MARCH 30', full: 'March 30th, 2026' },
   ];
 
-  const [selectedDate, setSelectedDate] = useState(dates[0]);
+  const location = useLocation();
+  const [selectedDate, setSelectedDate] = useState(() => {
+    // Check if we have a pre-selected date passed in state
+    if (location.state?.selectedDateId) {
+      const foundDate = dates.find(d => d.id === location.state.selectedDateId);
+      if (foundDate) return foundDate;
+    }
+    
+    return dates[0];
+  });
 
   const currentShows = MOVIES_DATA[selectedDate.id] || [];
 

@@ -148,7 +148,7 @@ const SeatBooking = () => {
         <div className="flex flex-col items-center justify-start min-h-full">
 
           <div className="w-full px-6 pt-10 flex justify-between items-center z-[110]">
-            <button onClick={() => navigate('/booking')} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white">
+            <button onClick={() => navigate('/booking', { state: { selectedDateId: parseInt(dateId) } })} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white">
               <i className="fas fa-chevron-left"></i> BACK
             </button>
             <button onClick={() => fetchBookings()} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-primary">
