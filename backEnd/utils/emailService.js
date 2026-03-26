@@ -85,7 +85,7 @@ const sendBookingEmail = async (bookingDetails) => {
 
 const sendAdminBookingEmail = async (bookingDetails) => {
   const { name, email, seats, totalPrice, movieName } = bookingDetails;
-  
+
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
 
   const transporter = nodemailer.createTransport({
@@ -98,7 +98,7 @@ const sendAdminBookingEmail = async (bookingDetails) => {
 
   const mailOptions = {
     from: `"Movie Mokkalu Admin" <${process.env.EMAIL_USER}>`,
-    to: 'ashoktech321@gmail.com, bhanuprakashalahari.04@gmail.com',
+    to: 'ashoktech321@gmail.com, bhanuprakashalahari.04@gmail.com, umesh2782005@gmail.com, roamtech7@gmail.com',
     subject: `New Booking: ${movieName} - ₹${totalPrice}`,
     html: `
       <h2>New Ticket Booking Received</h2>

@@ -78,7 +78,22 @@ const RukkuBookings = () => {
                             <h1 className="text-5xl md:text-7xl font-black tracking-tighter italic">
                                Rukku<span className="text-primary font-display not-italic">Bookings.</span>
                             </h1>
-                            <p className="mt-4 text-sm font-bold text-white/30 italic">
+                            <div className="mt-6 flex items-baseline gap-4">
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-primary italic mb-1">TotalRevenue(Filtered)</span>
+                                    <h2 className="text-3xl font-black italic tracking-tighter text-white">
+                                        ₹{filteredBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0).toLocaleString('en-IN')}
+                                    </h2>
+                                </div>
+                                <div className="h-10 w-px bg-white/10 mx-2"></div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic mb-1">TicketCount</span>
+                                    <h2 className="text-3xl font-black italic tracking-tighter text-white/40">
+                                        {filteredBookings.length}
+                                    </h2>
+                                </div>
+                            </div>
+                            <p className="mt-8 text-sm font-bold text-white/30 italic">
                                 DetailedSystemReportOfAllTicketTransactions
                             </p>
                         </div>

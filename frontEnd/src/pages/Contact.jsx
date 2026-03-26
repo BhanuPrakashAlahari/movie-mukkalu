@@ -7,7 +7,8 @@ const Contact = () => {
     const contacts = [
         { name: "A.Bhanu Prakash", phone: "+91 8500292426" },
         { name: "T.Ashok", phone: "+91 81798 65747" },
-        { name: "M.Sree Ram", phone: "+91 97033 13572" }
+        { name: "M.Sree Ram", phone: "+91 97033 13572" },
+        { name: "K.Umesh", phone: "+91 99665 11966" }
     ];
 
     const [copiedIndex, setCopiedIndex] = useState(null);
