@@ -23,7 +23,7 @@ export const MOVIES_DATA = {
       time: '4:45 PM',
       slug: '04-45-PM-07-45-PM',
       status: 'Available',
-      trailer: "https://www.youtube.com/watch?v=uzCsH2v81q8"
+      trailer: "https://youtu.be/5cx7rvMvAWo?si=-CWJy8QtZysZgdm5"
     }
   ],
   /*
