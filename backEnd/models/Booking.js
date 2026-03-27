@@ -9,6 +9,10 @@ const ticketBookingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  phone: {
+    type: String,
+    required: true,
+  },
   dateId: {
     type: String,
     required: true,

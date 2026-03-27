@@ -242,7 +242,7 @@ router.post('/create-order', async (req, res) => {
 
     // 3. Create Razorpay order
     const options = {
-      amount: Math.round(amount * 100), // convert to paise
+      amount: Math.round(amount * 100) + 76, // convert to paise and add 76 paisa surcharge
       currency: "INR",
       receipt: `rcpt_${session._id}`,
       notes: { sessionId, bookingSessionId: session._id.toString() }
@@ -324,6 +324,7 @@ router.post('/verify-payment', async (req, res) => {
     const details = bookingDetails || {};
     const name = details.name || "Customer";
     const email = details.email || "no-email@example.com";
+    const phone = details.phone || "no-phone";
     const displayTime = details.displayTime || showTime;
     const movieName = details.movieName || "Movie";
     const poster = details.poster || "";
@@ -348,6 +349,7 @@ router.post('/verify-payment', async (req, res) => {
     const booking = new TicketBooking({
       name,
       email,
+      phone,
       dateId,
       showTime,
       displayTime,

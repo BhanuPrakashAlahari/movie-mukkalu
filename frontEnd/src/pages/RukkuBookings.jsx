@@ -172,6 +172,7 @@ const RukkuBookings = () => {
                                                         <div className="flex flex-col gap-1">
                                                             <span className="text-white font-black italic">{booking.name}</span>
                                                             <span className="text-white/30 text-[10px] font-bold font-mono">{booking.email}</span>
+                                                            <span className="text-primary/60 text-[10px] font-bold font-mono">{booking.phone}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-6">

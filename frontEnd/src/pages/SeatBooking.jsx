@@ -19,7 +19,7 @@ const SeatBooking = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCheckoutPage, setShowCheckoutPage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userDetails, setUserDetails] = useState({ name: '', email: '' });
+  const [userDetails, setUserDetails] = useState({ name: '', email: '', phone: '' });
   const [bookingSessionId, setBookingSessionId] = useState(null);
 
   const TICKET_LIMIT = 6;
@@ -113,7 +113,7 @@ const SeatBooking = () => {
 
   const handleFinalPayment = async (e) => {
     e.preventDefault();
-    if (!userDetails.name || !userDetails.email) return alert("Fill details.");
+    if (!userDetails.name || !userDetails.email || !userDetails.phone) return alert("Fill all details.");
     try {
       setIsSubmitting(true);
       const order = await createRazorpayOrder(bookingSessionId);
@@ -291,6 +291,15 @@ const SeatBooking = () => {
 
                   <div className="flex flex-col gap-2">
                     <input
+                      type="tel" required placeholder="Contact Number"
+                      value={userDetails.phone}
+                      onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white focus:border-primary focus:outline-none transition-all"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <input
                       type="email" required placeholder="Email"
                       value={userDetails.email}
                       onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
@@ -298,7 +307,7 @@ const SeatBooking = () => {
                     />
                     <div className="mt-1 ml-2">
                       <p className="text-[12px] text-red-500 leading-relaxed font-black">
-                        * Please Enter a Valid Email As Your Tickets Will Be Sent.
+                        * Please Enter a Valid Email & Contact Number As Your Tickets Will Be Sent.
                       </p>
                     </div>
                   </div>

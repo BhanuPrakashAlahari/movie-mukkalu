@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 const sendBookingEmail = async (bookingDetails) => {
-  const { name, email, dateId, showTime, displayTime, seats, totalPrice, movieName, poster } = bookingDetails;
+  const { name, email, phone, dateId, showTime, displayTime, seats, totalPrice, movieName, poster } = bookingDetails;
 
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.error('❌ EMAIL_USER or EMAIL_PASS environment variables are missing!');
@@ -46,7 +46,7 @@ const sendBookingEmail = async (bookingDetails) => {
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
                 <td style="padding: 10px 0; color: #999;">Customer</td>
-                <td style="padding: 10px 0; text-align: right; font-weight: bold;">${name}</td>
+                <td style="padding: 10px 0; text-align: right; font-weight: bold;">${name} (${phone})</td>
               </tr>
               <tr>
                 <td style="padding: 10px 0; color: #999;">Seats</td>
@@ -84,7 +84,7 @@ const sendBookingEmail = async (bookingDetails) => {
 };
 
 const sendAdminBookingEmail = async (bookingDetails) => {
-  const { name, email, seats, totalPrice, movieName } = bookingDetails;
+  const { name, email, phone, seats, totalPrice, movieName } = bookingDetails;
 
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
 
@@ -104,6 +104,7 @@ const sendAdminBookingEmail = async (bookingDetails) => {
       <h2>New Ticket Booking Received</h2>
       <p><strong>Customer Name:</strong> ${name}</p>
       <p><strong>Customer Email:</strong> ${email}</p>
+      <p><strong>Customer Phone:</strong> ${phone}</p>
       <p><strong>Movie:</strong> ${movieName}</p>
       <p><strong>Seats:</strong> ${seats.join(', ')}</p>
       <p><strong>Total Amount:</strong> ₹${totalPrice}</p>

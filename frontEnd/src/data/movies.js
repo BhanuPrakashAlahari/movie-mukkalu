@@ -9,12 +9,12 @@ export const MOVIES_DATA = {
       trailer: "https://www.youtube.com/watch?v=KFHXCvvxL1U"
     },
     {
-      name: "Anand",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296970/anand_txwoak.jpg",
+      name: "Salaar: Part 1 – Ceasefire",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243229/salaar_khs9kg.jpg",
       time: '1:00 PM',
       slug: '01-00-PM-04-00-PM',
       status: 'Available',
-      trailer: ""
+      trailer: "https://youtu.be/Joo_jE8kMDg?si=4znJqg1hqm71vzdw"
     },
     {
       name: "Kanchana",
