@@ -373,9 +373,11 @@ router.post('/verify-payment', async (req, res) => {
       bookingSessionId: session._id
     });
 
-    // 9. Send confirmation email
-    await sendBookingEmail(newBooking);
-    await sendAdminBookingEmail(newBooking);
+    // 9. Send confirmation Emails in parallel
+    await Promise.allSettled([
+      sendBookingEmail(newBooking),
+      sendAdminBookingEmail(newBooking)
+    ]);
 
     res.status(201).json({ status: "success", booking: newBooking });
 

@@ -1,22 +1,23 @@
 const nodemailer = require('nodemailer');
 
-const sendBookingEmail = async (bookingDetails) => {
-  const { name, email, phone, dateId, showTime, displayTime, seats, totalPrice, movieName, poster } = bookingDetails;
-
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error('❌ EMAIL_USER or EMAIL_PASS environment variables are missing!');
-    return;
-  }
-
-  // Create a transporter
-  const transporter = nodemailer.createTransport({
+// Create a single transporter instance if environment variables are set
+let transporter;
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
   });
+} else {
+  console.error('❌ EMAIL_USER or EMAIL_PASS environment variables are missing! Email sending will be disabled.');
+}
 
+const sendBookingEmail = async (bookingDetails) => {
+  if (!transporter) return;
+
+  const { name, email, phone, dateId, showTime, displayTime, seats, totalPrice, movieName, poster } = bookingDetails;
 
   const mailOptions = {
     from: `"Movie Mokkalu" <${process.env.EMAIL_USER}>`,
@@ -84,17 +85,9 @@ const sendBookingEmail = async (bookingDetails) => {
 };
 
 const sendAdminBookingEmail = async (bookingDetails) => {
+  if (!transporter) return;
+
   const { name, email, phone, seats, totalPrice, movieName } = bookingDetails;
-
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
-
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
 
   const mailOptions = {
     from: `"Movie Mokkalu Admin" <${process.env.EMAIL_USER}>`,
@@ -115,7 +108,7 @@ const sendAdminBookingEmail = async (bookingDetails) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Admin notification sent to ashoktech321@gmail.com and bhanuprakashalahari.04@gmail.com`);
+    console.log(`Admin notification sent`);
   } catch (error) {
     console.error('Error sending admin email:', error);
   }

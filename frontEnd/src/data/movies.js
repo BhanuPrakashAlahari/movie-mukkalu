@@ -5,7 +5,7 @@ export const MOVIES_DATA = {
       poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412257/WhatsApp_Image_2026-03-24_at_03.27.11_omxb6f.jpg",
       time: '10:00 AM',
       slug: '10-00-AM-01-00-PM',
-      status: 'Available',
+      status: 'Bookings closed!',
       trailer: "https://www.youtube.com/watch?v=KFHXCvvxL1U"
     },
     {

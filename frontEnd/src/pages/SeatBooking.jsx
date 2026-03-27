@@ -14,6 +14,13 @@ const SeatBooking = () => {
   const poster = currentMovie?.poster || "";
   const trailerUrl = currentMovie?.trailer || "";
 
+  useEffect(() => {
+    if (currentMovie?.status === 'Bookings closed!') {
+      alert("Bookings are closed for this show.");
+      navigate('/booking', { state: { selectedDateId: parseInt(dateId) } });
+    }
+  }, [currentMovie, navigate, dateId]);
+
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [alreadyBooked, setAlreadyBooked] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -125,10 +132,19 @@ const SeatBooking = () => {
         name: "Movie Mokkalu",
         order_id: order.id,
         handler: async (res) => {
-          const result = await verifyPayment({ ...res, bookingDetails: { ...userDetails, dateId, showTime, seats: selectedSeats, totalPrice: calculateTotal(selectedSeats.length), movieName, poster, displayTime: currentMovie.time } });
-          if (result.status === 'success') {
-            alert("Booked!");
-            navigate('/');
+          try {
+            const result = await verifyPayment({ ...res, bookingDetails: { ...userDetails, dateId, showTime, seats: selectedSeats, totalPrice: calculateTotal(selectedSeats.length), movieName, poster, displayTime: currentMovie.time } });
+            if (result.status === 'success') {
+              alert("Booked!");
+              navigate('/');
+            } else {
+              alert(result.message || "Booking verification failed.");
+              setIsSubmitting(false);
+            }
+          } catch (err) {
+            console.error(err);
+            alert("An error occurred during verification. Please contact support.");
+            setIsSubmitting(false);
           }
         },
         modal: { ondismiss: () => { setIsSubmitting(false); cancelOrder(bookingSessionId); } }
