@@ -8,7 +8,6 @@ import { MOVIES_DATA } from '../data/movies';
 const Booking = () => {
   const navigate = useNavigate();
   const dates = [
-    { id: 27, label: 'MARCH 27', full: 'March 27th, 2026' },
     { id: 28, label: 'MARCH 28', full: 'March 28th, 2026' },
     { id: 29, label: 'MARCH 29', full: 'March 29th, 2026' },
     { id: 30, label: 'MARCH 30', full: 'March 30th, 2026' },

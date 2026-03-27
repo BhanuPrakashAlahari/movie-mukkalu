@@ -1,30 +1,4 @@
 export const MOVIES_DATA = {
-  27: [
-    {
-      name: "Kushi",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412257/WhatsApp_Image_2026-03-24_at_03.27.11_omxb6f.jpg",
-      time: '10:00 AM',
-      slug: '10-00-AM-01-00-PM',
-      status: 'Bookings closed!',
-      trailer: "https://www.youtube.com/watch?v=KFHXCvvxL1U"
-    },
-    {
-      name: "Salaar: Part 1 – Ceasefire",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243229/salaar_khs9kg.jpg",
-      time: '1:00 PM',
-      slug: '01-00-PM-04-00-PM',
-      status: 'Available',
-      trailer: "https://youtu.be/Joo_jE8kMDg?si=4znJqg1hqm71vzdw"
-    },
-    {
-      name: "Kanchana",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243228/kanchana_rgz5fg.jpg",
-      time: '4:14 PM',
-      slug: '04-14-PM-07-14-PM',
-      status: 'Available',
-      trailer: "https://www.youtube.com/watch?v=p078qlaiypw"
-    }
-  ],
   28: [
     {
       name: "Orange",
