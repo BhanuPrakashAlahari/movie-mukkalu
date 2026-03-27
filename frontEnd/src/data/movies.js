@@ -9,22 +9,24 @@ export const MOVIES_DATA = {
       trailer: "https://www.youtube.com/watch?v=_FrmfC5_Pv8"
     },
     {
-      name: "Darling",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412257/WhatsApp_Image_2026-03-24_at_03.29.31_fqchqx.jpg",
+      name: "Ee Nagaraniki Emaindhi",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412257/WhatsApp_Image_2026-03-24_at_03.30.56_cuxavb.jpg",
       time: '1:30 PM',
       slug: '01-30-PM-04-30-PM',
       status: 'Available',
-      trailer: "https://www.youtube.com/watch?v=MxnDk3UEaZo"
+      trailer: "https://www.youtube.com/watch?v=0-ra4l54MSg"
     },
     {
-      name: "Godavari",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774296848/godavari_xkbksc.jpg",
-      time: '4:15 PM',
-      slug: '04-15-PM-07-15-PM',
+      name: "Devara",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774644250/__bhswnt.jpg",
+      bookingPoster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774644250/Devara_fzwwyl.jpg",
+      time: '4:45 PM',
+      slug: '04-45-PM-07-45-PM',
       status: 'Available',
-      trailer: "https://www.youtube.com/watch?v=mRr_Tg6fukg"
+      trailer: "https://www.youtube.com/watch?v=uzCsH2v81q8"
     }
   ],
+  /*
   29: [
     {
       name: "7/G Brindavan Colony",
@@ -51,6 +53,8 @@ export const MOVIES_DATA = {
       trailer: "https://www.youtube.com/watch?v=_mPuQcQ7aGg"
     }
   ],
+  */
+  /*
   30: [
     {
       name: "Nuvvu Naku Nachhav",
@@ -77,6 +81,7 @@ export const MOVIES_DATA = {
       trailer: "https://www.youtube.com/watch?v=aozErj9NqeE"
     }
   ]
+  */
 };
 
 export const ALL_POSTERS = Object.values(MOVIES_DATA).flat().map(movie => movie.poster);

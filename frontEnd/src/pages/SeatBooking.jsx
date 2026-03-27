@@ -11,7 +11,7 @@ const SeatBooking = () => {
 
   const currentMovie = MOVIES_DATA[dateId]?.find(m => m.slug === showTime);
   const movieName = currentMovie?.name || "Movie";
-  const poster = currentMovie?.poster || "";
+  const poster = currentMovie?.bookingPoster || currentMovie?.poster || "";
   const trailerUrl = currentMovie?.trailer || "";
 
   useEffect(() => {

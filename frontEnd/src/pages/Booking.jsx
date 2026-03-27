@@ -74,51 +74,56 @@ const Booking = () => {
 
           {/* Show Times Grid */}
           <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
-            {currentShows.map((movie, index) => (
-              <div
-                key={`${selectedDate.id}-${index}-${movie.name}`}
-                className="flex bg-bg-secondary/40 border border-white/10 rounded-xl overflow-hidden h-[170px] hover:border-white/30 transition-all duration-300 transform hover:-translate-y-1"
-              >
-                {/* Left Side: Poster */}
-                <div className="w-[120px] flex-shrink-0 border-r border-white/10">
-                  <img 
-                    src={movie.poster} 
-                    alt={movie.name} 
-                    className="w-full h-full object-cover" 
-                  />
-                </div>
+            {currentShows.length > 0 ? (
+              currentShows.map((movie, index) => (
+                <div
+                  key={`${selectedDate.id}-${index}-${movie.name}`}
+                  className="flex bg-bg-secondary/40 border border-white/10 rounded-xl overflow-hidden h-[170px] hover:border-white/30 transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  {/* Left Side: Poster */}
+                  <div className="w-[120px] flex-shrink-0 border-r border-white/10">
+                    <img
+                      src={movie.poster}
+                      alt={movie.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
 
-                {/* Right Side: Content */}
-                <div className="flex-1 p-4 flex flex-col justify-between">
-                  <div>
-                    <span className={`text-[7px] font-black uppercase tracking-[0.2em] block mb-0.5 px-2 py-0.5 w-fit rounded-full leading-none ${
-                      movie.status === 'Bookings closed!' ? 'bg-white/10 text-white/40' : 'text-primary bg-primary/10'
-                    }`}>
-                      {movie.status === 'Bookings closed!' ? 'Booking Closed' : 'Now Showing'}
-                    </span>
-                    <h3 className="text-base font-black text-white leading-tight line-clamp-1">{movie.name}</h3>
-                  </div>
-                  
-                  <div className="flex flex-col gap-3">
-                    <div className="leading-tight">
-                      <p className="text-text-muted text-[7px] font-bold uppercase tracking-widest mb-0.5 opacity-60 font-display">Show Time</p>
-                      <p className="text-white font-black text-sm whitespace-nowrap">{movie.time}</p>
+                  {/* Right Side: Content */}
+                  <div className="flex-1 p-4 flex flex-col justify-between">
+                    <div>
+                      <span className={`text-[7px] font-black uppercase tracking-[0.2em] block mb-0.5 px-2 py-0.5 w-fit rounded-full leading-none ${movie.status === 'Bookings closed!' ? 'bg-white/10 text-white/40' : 'text-primary bg-primary/10'
+                        }`}>
+                        {movie.status === 'Bookings closed!' ? 'Booking Closed' : 'Now Showing'}
+                      </span>
+                      <h3 className="text-base font-black text-white leading-tight line-clamp-1">{movie.name}</h3>
                     </div>
-                    <button
-                      onClick={() => movie.status !== 'Bookings closed!' && handleSelectSeats(movie.slug)}
-                      disabled={movie.status === 'Bookings closed!'}
-                      className={`w-full h-9 text-[8px] font-black uppercase tracking-[0.2em] transition-all rounded-lg ${
-                        movie.status === 'Bookings closed!' 
-                        ? 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5 opacity-50' 
-                        : 'bg-primary text-white hover:bg-primary-light shadow-glow'
-                      }`}
-                    >
-                      {movie.status === 'Bookings closed!' ? 'Bookings closed!' : 'Book Now'}
-                    </button>
+
+                    <div className="flex flex-col gap-3">
+                      <div className="leading-tight">
+                        <p className="text-text-muted text-[7px] font-bold uppercase tracking-widest mb-0.5 opacity-60 font-display">Show Time</p>
+                        <p className="text-white font-black text-sm whitespace-nowrap">{movie.time}</p>
+                      </div>
+                      <button
+                        onClick={() => movie.status !== 'Bookings closed!' && handleSelectSeats(movie.slug)}
+                        disabled={movie.status === 'Bookings closed!'}
+                        className={`w-full h-9 text-[8px] font-black uppercase tracking-[0.2em] transition-all rounded-lg ${movie.status === 'Bookings closed!'
+                            ? 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5 opacity-50'
+                            : 'bg-primary text-white hover:bg-primary-light shadow-glow'
+                          }`}
+                      >
+                        {movie.status === 'Bookings closed!' ? 'Bookings closed!' : 'Book Now'}
+                      </button>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="col-span-full py-20 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/5">
+                <i className="fas fa-film text-white/20 text-4xl mb-4 animate-pulse"></i>
+                <p className="text-white/60 font-black uppercase tracking-[0.3em] text-xs">the movies will be revealed soon....</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </main>
