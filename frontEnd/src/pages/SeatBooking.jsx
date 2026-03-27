@@ -114,6 +114,7 @@ const SeatBooking = () => {
   const handleFinalPayment = async (e) => {
     e.preventDefault();
     if (!userDetails.name || !userDetails.email || !userDetails.phone) return alert("Fill all details.");
+    if (userDetails.phone.length !== 10) return alert("Contact number must be exactly 10 digits.");
     try {
       setIsSubmitting(true);
       const order = await createRazorpayOrder(bookingSessionId);
@@ -293,7 +294,8 @@ const SeatBooking = () => {
                     <input
                       type="tel" required placeholder="Contact Number"
                       value={userDetails.phone}
-                      onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
+                      maxLength="10"
+                      onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white focus:border-primary focus:outline-none transition-all"
                     />
                   </div>
