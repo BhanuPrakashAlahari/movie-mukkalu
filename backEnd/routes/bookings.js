@@ -242,7 +242,7 @@ router.post('/create-order', async (req, res) => {
 
     // 3. Create Razorpay order
     const options = {
-      amount: Math.round(amount * 100) + 76, // convert to paise and add 76 paisa surcharge
+      amount: Math.round(amount * 100) + (76 * session.seatIds.length), // convert to paise and add 76 paisa per ticket surcharge
       currency: "INR",
       receipt: `rcpt_${session._id}`,
       notes: { sessionId, bookingSessionId: session._id.toString() }
@@ -318,7 +318,7 @@ router.post('/verify-payment', async (req, res) => {
 
     // 3. Destructure
     const { dateId, showTime, seatIds: seats, sessionId: finalSessionId } = session;
-    const totalPrice = calculatePrice(seats.length);
+    const totalPrice = calculatePrice(seats.length) + (0.76 * seats.length);
 
     // Safely destructure bookingDetails
     const details = bookingDetails || {};
