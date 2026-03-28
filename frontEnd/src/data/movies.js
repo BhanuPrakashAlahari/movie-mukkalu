@@ -8,14 +8,7 @@ export const MOVIES_DATA = {
       status: 'Available',
       trailer: "https://youtu.be/t8HVxmysPC4?si=WtSwJtp8_c-V659T"
     },
-    {
-      name: "Masoodha",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774716746/masoodha_l6xw95.jpg",
-      time: '1:00 PM',
-      slug: '01-00-PM-03-30-PM',
-      status: 'Available',
-      trailer: "https://youtu.be/5iwdHPO1EJk?si=cBxzFAVz4F3OsEjL"
-    },
+
     {
       name: "Arjun Reddy",
       poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774412257/WhatsApp_Image_2026-03-24_at_03.31.47_t58oxx.jpg",
@@ -23,6 +16,14 @@ export const MOVIES_DATA = {
       slug: '03-40-PM-06-40-PM',
       status: 'Available',
       trailer: "https://www.youtube.com/watch?v=aozErj9NqeE"
+    },
+    {
+      name: "Masoodha",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774716746/masoodha_l6xw95.jpg",
+      time: '1:00 PM',
+      slug: '01-00-PM-03-30-PM',
+      status: 'Available',
+      trailer: "https://youtu.be/5iwdHPO1EJk?si=cBxzFAVz4F3OsEjL"
     }
   ],
   30: []
