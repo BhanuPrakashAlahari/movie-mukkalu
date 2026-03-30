@@ -67,7 +67,14 @@ const SeatBooking = () => {
   }, []);
 
   const handleSeatClick = (seatId) => {
-    if (alreadyBooked.includes(seatId)) return;
+    const row = seatId[0];
+    const num = parseInt(seatId.slice(1));
+    const isStaticBlocked = movieName === "Gita Govindham" && (
+      row === 'D' || 
+      (row === 'E' && num >= 7 && num <= 12) || 
+      (row === 'F' && num >= 3 && num <= 6)
+    );
+    if (alreadyBooked.includes(seatId) || isStaticBlocked) return;
     setSelectedSeats(prev => {
       if (prev.includes(seatId)) return prev.filter(s => s !== seatId);
       if (prev.length >= TICKET_LIMIT) {
@@ -205,47 +212,56 @@ const SeatBooking = () => {
                         const bkd = alreadyBooked.includes(id);
                         return (
                           <React.Fragment key={id}>
-                            <button
-                              onClick={() => handleSeatClick(id)}
-                              disabled={bkd}
-                              className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${bkd ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
-                              style={sel ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-                            >
-                              {!sel && <span className="relative z-10">{bkd ? "X" : num}</span>}
-                            </button>
-                            {idx === 5 && <div className="w-10 md:w-16" />}
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-
-                <div className="flex items-center gap-6">
-                  <span className="w-6 text-[11px] font-black text-white/20">{lastRow}</span>
-                  <div className="flex items-center gap-2 md:gap-3">
-                    {Array.from({ length: 10 }, (_, i) => i + 1).map((num, idx) => {
-                      const id = `${lastRow}${num}`;
-                      const sel = selectedSeats.includes(id);
-                      const bkd = alreadyBooked.includes(id);
-                      return (
-                        <React.Fragment key={id}>
                           <button
                             onClick={() => handleSeatClick(id)}
-                            disabled={bkd}
-                            className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${bkd ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
+                            disabled={bkd || (movieName === "Gita Govindham" && (
+                              row === 'D' || 
+                              (row === 'E' && num >= 7 && num <= 12) || 
+                              (row === 'F' && num >= 3 && num <= 6)
+                            ))}
+                            className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${bkd || (movieName === "Gita Govindham" && (row === 'D' || (row === 'E' && num >= 7 && num <= 12) || (row === 'F' && num >= 3 && num <= 6))) ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
                             style={sel ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                           >
-                            {!sel && <span className="relative z-10">{bkd ? "X" : num}</span>}
+                            {!sel && <span className="relative z-10">{bkd || (movieName === "Gita Govindham" && (row === 'D' || (row === 'E' && num >= 7 && num <= 12) || (row === 'F' && num >= 3 && num <= 6))) ? "X" : num}</span>}
                           </button>
-                          {idx === 4 && <div className="w-16 md:w-32" />}
+                          {idx === 5 && <div className="w-10 md:w-16" />}
                         </React.Fragment>
                       );
                     })}
                   </div>
                 </div>
+              ))}
+
+              <div className="flex items-center gap-6">
+                <span className="w-6 text-[11px] font-black text-white/20">{lastRow}</span>
+                <div className="flex items-center gap-2 md:gap-3">
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map((num, idx) => {
+                    const id = `${lastRow}${num}`;
+                    const row = lastRow; // for clarify
+                    const sel = selectedSeats.includes(id);
+                    const bkd = alreadyBooked.includes(id) || (movieName === "Gita Govindham" && (
+                      row === 'D' || 
+                      (row === 'E' && num >= 7 && num <= 12) || 
+                      (row === 'F' && num >= 3 && num <= 6)
+                    ));
+                    return (
+                      <React.Fragment key={id}>
+                        <button
+                          onClick={() => handleSeatClick(id)}
+                          disabled={bkd}
+                          className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${bkd ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
+                          style={sel ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                        >
+                          {!sel && <span className="relative z-10">{bkd ? "X" : num}</span>}
+                        </button>
+                        {idx === 4 && <div className="w-16 md:w-32" />}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
               </div>
             </div>
+          </div>
           )}
         </div>
       </main>
