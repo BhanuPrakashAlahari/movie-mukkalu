@@ -13,8 +13,11 @@ const INITIAL_LOCK_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 const PAYMENT_LOCK_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 const TICKET_LIMIT = 6;
 
-const calculatePrice = (count) => {
+const calculatePrice = (count, movieName) => {
   if (count <= 0) return 0;
+  if (movieName === "Sita Ramam") {
+    return count * 59;
+  }
   if (count === 1) return 79;
   if (count === 2) return 149;
   if (count === 3) return 79 + 149;
@@ -127,7 +130,7 @@ router.get('/:dateId/:showTime', async (req, res) => {
  * - Prevent others from overriding active locks
  */
 router.post('/lock-seats', async (req, res) => {
-  const { dateId, showTime, seatIds } = req.body;
+  const { dateId, showTime, seatIds, movieName } = req.body;
   const sessionId = req.sessionId;
 
   if (!dateId || !showTime || !seatIds || !Array.isArray(seatIds) || seatIds.length === 0) {
@@ -168,6 +171,7 @@ router.post('/lock-seats', async (req, res) => {
       dateId,
       showTime,
       seatIds,
+      movieName,
       status: 'LOCKED',
       expiresAt: expiry
     });
@@ -238,7 +242,7 @@ router.post('/create-order', async (req, res) => {
     const extendedExpiry = new Date(now.getTime() + PAYMENT_LOCK_TIMEOUT);
 
     // 2. Calculate amount
-    const amount = calculatePrice(session.seatIds.length);
+    const amount = calculatePrice(session.seatIds.length, session.movieName);
 
     // 3. Create Razorpay order
     const options = {
@@ -317,8 +321,8 @@ router.post('/verify-payment', async (req, res) => {
     }
 
     // 3. Destructure
-    const { dateId, showTime, seatIds: seats, sessionId: finalSessionId } = session;
-    const totalPrice = calculatePrice(seats.length) + (0.76 * seats.length);
+    const { dateId, showTime, seatIds: seats, sessionId: finalSessionId, movieName: sessionMovieName } = session;
+    const totalPrice = calculatePrice(seats.length, sessionMovieName) + (0.76 * seats.length);
 
     // Safely destructure bookingDetails
     const details = bookingDetails || {};

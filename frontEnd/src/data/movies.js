@@ -6,7 +6,7 @@ export const MOVIES_DATA = {
       poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774839377/gitagovindham_phnbhc.jpg",
       time: '10:00 AM',
       slug: '10-00-AM-01-00-PM',
-      status: 'Available',
+      status: 'Bookings closed!',
       trailer: "https://youtu.be/qHqWRCxhcOk?si=oLKatMW6hTFe3FrM"
     },
     {
@@ -14,7 +14,7 @@ export const MOVIES_DATA = {
       poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243229/salaar_khs9kg.jpg",
       time: '1:00 PM',
       slug: '01-00-PM-04-00-PM',
-      status: 'Available',
+      status: 'Bookings closed!',
       trailer: "https://youtu.be/4GPvYMKtrtI?si=V17JBA-JsEXyXtgj"
     },
     {

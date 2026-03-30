@@ -18,6 +18,10 @@ const bookingSessionSchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
+  movieName: {
+    type: String,
+    required: false,
+  },
   status: {
     type: String,
     enum: ['LOCKED', 'PAYMENT_PENDING', 'FAILED', 'CONFIRMED'],

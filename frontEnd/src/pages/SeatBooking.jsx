@@ -31,6 +31,10 @@ const SeatBooking = () => {
 
   const TICKET_LIMIT = 6;
   const calculateTotal = (count) => {
+    if (count <= 0) return 0;
+    if (movieName === "Sita Ramam") {
+      return count * 59;
+    }
     if (count === 1) return 79;
     if (count === 2) return 149;
     if (count === 3) return 79 + 149;
@@ -89,7 +93,7 @@ const SeatBooking = () => {
     if (selectedSeats.length === 0) return;
     try {
       setIsSubmitting(true);
-      const lockResult = await lockSeats(dateId, showTime, selectedSeats);
+      const lockResult = await lockSeats(dateId, showTime, selectedSeats, movieName);
       if (lockResult.success === false) {
         const unavailable = lockResult.unavailableSeats || [];
         alert(unavailable.length > 0 

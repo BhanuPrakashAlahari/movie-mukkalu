@@ -101,9 +101,9 @@ export const createStall = async (stallData) => {
  * Atomic Seat Locking
  * Reserves seats for 10 minutes to prevent double booking.
  */
-export const lockSeats = async (dateId, showTime, seatIds) => {
+export const lockSeats = async (dateId, showTime, seatIds, movieName) => {
   try {
-    const response = await api.post('/bookings/lock-seats', { dateId, showTime, seatIds });
+    const response = await api.post('/bookings/lock-seats', { dateId, showTime, seatIds, movieName });
     return response.data;
   } catch (error) {
     console.error('Locking error:', error);
