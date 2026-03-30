@@ -78,7 +78,8 @@ const SeatBooking = () => {
     }
     if (movie === "Sita Ramam") {
       return (row === 'F' && (num === 1 || num === 2)) || 
-             (row === 'C' && (num === 7 || num === 8));
+             (row === 'C' && (num === 7 || num === 8)) ||
+             (row === 'E' && num >= 8 && num <= 12);
     }
     if (movie === "Salaar") {
       return row === 'C' && num >= 1 && num <= 4;
