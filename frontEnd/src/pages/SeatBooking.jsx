@@ -70,15 +70,26 @@ const SeatBooking = () => {
     };
   }, []);
 
+  const isSeatBlockedManually = (row, num, movie) => {
+    if (movie === "Gita Govindham") {
+      return row === 'D' || 
+             (row === 'E' && num >= 7 && num <= 12) || 
+             (row === 'F' && num >= 3 && num <= 6);
+    }
+    if (movie === "Sita Ramam") {
+      return (row === 'F' && (num === 1 || num === 2)) || 
+             (row === 'C' && (num === 7 || num === 8));
+    }
+    if (movie === "Salaar") {
+      return row === 'C' && num >= 1 && num <= 4;
+    }
+    return false;
+  };
+
   const handleSeatClick = (seatId) => {
     const row = seatId[0];
     const num = parseInt(seatId.slice(1));
-    const isStaticBlocked = (movieName === "Gita Govindham" && (
-      row === 'D' || 
-      (row === 'E' && num >= 7 && num <= 12) || 
-      (row === 'F' && num >= 3 && num <= 6)
-    )) || (movieName === "Sita Ramam" && ((row === 'F' && (num === 1 || num === 2)) || (row === 'C' && (num === 7 || num === 8)))) || (movieName === "Salaar" && row === 'C' && num >= 1 && num <= 4);
-    if (alreadyBooked.includes(seatId) || isStaticBlocked) return;
+    if (alreadyBooked.includes(seatId) || isSeatBlockedManually(row, num, movieName)) return;
     setSelectedSeats(prev => {
       if (prev.includes(seatId)) return prev.filter(s => s !== seatId);
       if (prev.length >= TICKET_LIMIT) {
@@ -214,19 +225,17 @@ const SeatBooking = () => {
                         const id = `${row}${num}`;
                         const sel = selectedSeats.includes(id);
                         const bkd = alreadyBooked.includes(id);
+                        const manualBlock = isSeatBlockedManually(row, num, movieName);
+                        const isUnavailable = bkd || manualBlock;
                         return (
                           <React.Fragment key={id}>
                           <button
                             onClick={() => handleSeatClick(id)}
-                            disabled={bkd || (movieName === "Gita Govindham" && (
-                              row === 'D' || 
-                              (row === 'E' && num >= 7 && num <= 12) || 
-                              (row === 'F' && num >= 3 && num <= 6)
-                            )) || (movieName === "Sita Ramam" && ((row === 'F' && (num === 1 || num === 2)) || (row === 'C' && (num === 7 || num === 8)))) || (movieName === "Salaar" && row === 'C' && num >= 1 && num <= 4)}
-                            className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${bkd || (movieName === "Gita Govindham" && (row === 'D' || (row === 'E' && num >= 7 && num <= 12) || (row === 'F' && num >= 3 && num <= 6))) || (movieName === "Sita Ramam" && ((row === 'F' && (num === 1 || num === 2)) || (row === 'C' && (num === 7 || num === 8)))) || (movieName === "Salaar" && row === 'C' && num >= 1 && num <= 4) ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
+                            disabled={isUnavailable}
+                            className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${isUnavailable ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
                             style={sel ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                           >
-                            {!sel && <span className="relative z-10">{bkd || (movieName === "Gita Govindham" && (row === 'D' || (row === 'E' && num >= 7 && num <= 12) || (row === 'F' && num >= 3 && num <= 6))) || (movieName === "Sita Ramam" && ((row === 'F' && (num === 1 || num === 2)) || (row === 'C' && (num === 7 || num === 8)))) || (movieName === "Salaar" && row === 'C' && num >= 1 && num <= 4) ? "X" : num}</span>}
+                            {!sel && <span className="relative z-10">{isUnavailable ? "X" : num}</span>}
                           </button>
                           {idx === 5 && <div className="w-10 md:w-16" />}
                         </React.Fragment>
@@ -241,22 +250,20 @@ const SeatBooking = () => {
                 <div className="flex items-center gap-2 md:gap-3">
                   {Array.from({ length: 10 }, (_, i) => i + 1).map((num, idx) => {
                     const id = `${lastRow}${num}`;
-                    const row = lastRow; // for clarify
+                    const row = lastRow;
                     const sel = selectedSeats.includes(id);
-                    const bkd = alreadyBooked.includes(id) || (movieName === "Gita Govindham" && (
-                      row === 'D' || 
-                      (row === 'E' && num >= 7 && num <= 12) || 
-                      (row === 'F' && num >= 3 && num <= 6)
-                    )) || (movieName === "Sita Ramam" && ((row === 'F' && (num === 1 || num === 2)) || (row === 'C' && (num === 7 || num === 8))));
+                    const bkd = alreadyBooked.includes(id);
+                    const manualBlock = isSeatBlockedManually(row, num, movieName);
+                    const isUnavailable = bkd || manualBlock;
                     return (
                       <React.Fragment key={id}>
                         <button
                           onClick={() => handleSeatClick(id)}
-                          disabled={bkd}
-                          className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${bkd ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
+                          disabled={isUnavailable}
+                          className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${isUnavailable ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
                           style={sel ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                         >
-                          {!sel && <span className="relative z-10">{bkd ? "X" : num}</span>}
+                          {!sel && <span className="relative z-10">{isUnavailable ? "X" : num}</span>}
                         </button>
                         {idx === 4 && <div className="w-16 md:w-32" />}
                       </React.Fragment>
