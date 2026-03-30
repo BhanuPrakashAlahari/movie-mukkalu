@@ -18,12 +18,12 @@ export const MOVIES_DATA = {
       trailer: "https://youtu.be/4GPvYMKtrtI?si=V17JBA-JsEXyXtgj"
     },
     {
-      name: "Durandhar",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774840120/WhatsApp_Image_2026-03-30_at_08.34.35_ym5rdd.jpg",
+      name: "Sita Ramam",
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774855159/SITARAMAM_cga0bh.jpg",
       time: '4:00 PM',
       slug: '04-00-PM-07-00-PM',
       status: 'Available',
-      trailer: "https://youtu.be/BKOVzHcjEIo?si=Xjau6hKQgL4NCjBI"
+      trailer: "https://youtu.be/Ljk6tGZ1l3A?si=4W-jAziR165uAUSi"
     }
   ]
 };
