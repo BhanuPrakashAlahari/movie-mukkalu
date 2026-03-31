@@ -8,6 +8,9 @@ import { MOVIES_DATA } from '../data/movies';
 const Booking = () => {
   const navigate = useNavigate();
   const dates = [
+    { id: 27, label: 'MARCH 27', full: 'March 27th, 2026' },
+    { id: 28, label: 'MARCH 28', full: 'March 28th, 2026' },
+    { id: 29, label: 'MARCH 29', full: 'March 29th, 2026' },
     { id: 30, label: 'MARCH 30', full: 'March 30th, 2026' },
   ];
 
@@ -19,7 +22,7 @@ const Booking = () => {
       if (foundDate) return foundDate;
     }
     
-    return dates[0];
+    return dates[dates.length - 1]; // Default to the latest date (the new one)
   });
 
   const currentShows = MOVIES_DATA[selectedDate.id] || [];
@@ -90,9 +93,9 @@ const Booking = () => {
                   {/* Right Side: Content */}
                   <div className="flex-1 p-4 flex flex-col justify-between">
                     <div>
-                      <span className={`text-[7px] font-black uppercase tracking-[0.2em] block mb-0.5 px-2 py-0.5 w-fit rounded-full leading-none ${movie.status === 'Bookings closed!' ? 'bg-white/10 text-white/40' : 'text-primary bg-primary/10'
+                      <span className={`text-[7px] font-black uppercase tracking-[0.2em] block mb-0.5 px-2 py-0.5 w-fit rounded-full leading-none ${movie.status === 'Bookings closed!' || movie.status === 'House Full' ? 'bg-white/10 text-white/40' : 'text-primary bg-primary/10'
                         }`}>
-                        {movie.status === 'Bookings closed!' ? 'Booking Closed' : 'Now Showing'}
+                        {movie.status === 'Bookings closed!' ? 'Booking Closed' : movie.status === 'House Full' ? 'House Full' : 'Now Showing'}
                       </span>
                       <h3 className="text-base font-black text-white leading-tight line-clamp-1">{movie.name}</h3>
                     </div>
@@ -103,14 +106,14 @@ const Booking = () => {
                         <p className="text-white font-black text-sm whitespace-nowrap">{movie.time}</p>
                       </div>
                       <button
-                        onClick={() => movie.status !== 'Bookings closed!' && handleSelectSeats(movie.slug)}
-                        disabled={movie.status === 'Bookings closed!'}
-                        className={`w-full h-9 text-[8px] font-black uppercase tracking-[0.2em] transition-all rounded-lg ${movie.status === 'Bookings closed!'
+                        onClick={() => movie.status !== 'Bookings closed!' && movie.status !== 'House Full' && handleSelectSeats(movie.slug)}
+                        disabled={movie.status === 'Bookings closed!' || movie.status === 'House Full'}
+                        className={`w-full h-9 text-[8px] font-black uppercase tracking-[0.2em] transition-all rounded-lg ${movie.status === 'Bookings closed!' || movie.status === 'House Full'
                             ? 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5 opacity-50'
                             : 'bg-primary text-white hover:bg-primary-light shadow-glow'
                           }`}
                       >
-                        {movie.status === 'Bookings closed!' ? 'Bookings closed!' : 'Book Now'}
+                        {movie.status === 'Bookings closed!' ? 'Bookings closed!' : movie.status === 'House Full' ? 'House Full' : 'Book Now'}
                       </button>
                     </div>
                   </div>

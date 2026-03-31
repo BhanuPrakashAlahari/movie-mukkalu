@@ -32,13 +32,7 @@ const SeatBooking = () => {
   const TICKET_LIMIT = 6;
   const calculateTotal = (count) => {
     if (count <= 0) return 0;
-    if (movieName === "Sita Ramam") {
-      return count * 59;
-    }
-    if (count === 1) return 79;
-    if (count === 2) return 149;
-    if (count === 3) return 79 + 149;
-    return count * 69;
+    return count * 1;
   };
 
   const fetchBookings = async (showLoading = true) => {
@@ -149,7 +143,7 @@ const SeatBooking = () => {
       setIsSubmitting(true);
       const order = await createRazorpayOrder(bookingSessionId);
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SUx71yfaQ42aCV',
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
         name: "Movie Mokkalu",

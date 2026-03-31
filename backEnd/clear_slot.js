@@ -1,6 +1,7 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 
-const MONGODB_URI = 'mongodb+srv://bhanuprakashalahari04_db_user:Bhanu09%40@cluster0.kwontdu.mongodb.net/movie_mukkalu';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 async function clearSlot() {
   try {
