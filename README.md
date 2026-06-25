@@ -193,10 +193,4 @@ VITE_RAZORPAY_KEY_ID=rzp_test_yourKeyId
 3.  Ensure CORS settings on your backend authorize requests originating from your frontend domain.
 
 ---
-
-## 📄 License
-
-Distributed under the MIT License. See [LICENSE](LICENSE) for more details.
-
----
 Created with ❤️ by **Bhanu Prakash Alahari**
