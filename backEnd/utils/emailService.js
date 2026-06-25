@@ -20,7 +20,7 @@ const sendBookingEmail = async (bookingDetails) => {
   const { name, email, phone, dateId, showTime, displayTime, seats, totalPrice, movieName, poster } = bookingDetails;
 
   const mailOptions = {
-    from: `"Movie Mokkalu" <${process.env.EMAIL_USER}>`,
+    from: `"Movie Mukkalu" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: `Confirmed: ${movieName} tickets for March ${dateId}`,
     html: `
@@ -70,7 +70,7 @@ const sendBookingEmail = async (bookingDetails) => {
         </div>
         
         <div style="background-color: #111; padding: 20px; text-align: center; font-size: 11px; color: #444;">
-          © 2026 Movie Mokkalu. All rights reserved.
+          © 2026 Movie Mukkalu. All rights reserved.
         </div>
       </div>
     `,
@@ -90,8 +90,8 @@ const sendAdminBookingEmail = async (bookingDetails) => {
   const { name, email, phone, seats, totalPrice, movieName } = bookingDetails;
 
   const mailOptions = {
-    from: `"Movie Mokkalu Admin" <${process.env.EMAIL_USER}>`,
-    to: 'ashoktech321@gmail.com, bhanuprakashalahari.04@gmail.com, umesh2782005@gmail.com, roamtech7@gmail.com',
+    from: `"Movie Mukkalu Admin" <${process.env.EMAIL_USER}>`,
+    to: process.env.ADMIN_EMAILS || 'ashoktech321@gmail.com, bhanuprakashalahari.04@gmail.com, umesh2782005@gmail.com, roamtech7@gmail.com',
     subject: `New Booking: ${movieName} - ₹${totalPrice}`,
     html: `
       <h2>New Ticket Booking Received</h2>
@@ -102,7 +102,7 @@ const sendAdminBookingEmail = async (bookingDetails) => {
       <p><strong>Seats:</strong> ${seats.join(', ')}</p>
       <p><strong>Total Amount:</strong> ₹${totalPrice}</p>
       <hr />
-      <p>Sent automatically by Movie Mokkalu Server</p>
+      <p>Sent automatically by Movie Mukkalu Server</p>
     `
   };
 

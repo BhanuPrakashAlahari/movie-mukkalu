@@ -146,7 +146,7 @@ const SeatBooking = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
-        name: "Movie Mokkalu",
+        name: "Movie Mukkalu",
         order_id: order.id,
         handler: async (res) => {
           try {
@@ -182,10 +182,10 @@ const SeatBooking = () => {
         <div className="flex flex-col items-center justify-start min-h-full">
 
           <div className="w-full px-6 pt-10 flex justify-between items-center z-[110]">
-            <button onClick={() => navigate('/booking', { state: { selectedDateId: parseInt(dateId) } })} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white">
+            <button onClick={() => navigate('/booking', { state: { selectedDateId: parseInt(dateId) } })} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white cursor-pointer">
               <i className="fas fa-chevron-left"></i> BACK
             </button>
-            <button onClick={() => fetchBookings()} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-primary">
+            <button onClick={() => fetchBookings()} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-primary cursor-pointer">
               <i className={`fas fa-sync-alt ${isLoading ? 'animate-spin' : ''}`}></i>
             </button>
           </div>
@@ -227,7 +227,7 @@ const SeatBooking = () => {
                           <button
                             onClick={() => handleSeatClick(id)}
                             disabled={isUnavailable}
-                            className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${isUnavailable ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
+                            className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${isUnavailable ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow cursor-pointer' : 'bg-[#120808] border-white/10 hover:border-white/40 cursor-pointer'}`}
                             style={sel ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                           >
                             {!sel && <span className="relative z-10">{isUnavailable ? "X" : num}</span>}
@@ -255,7 +255,7 @@ const SeatBooking = () => {
                         <button
                           onClick={() => handleSeatClick(id)}
                           disabled={isUnavailable}
-                          className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${isUnavailable ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow' : 'bg-[#120808] border-white/10 hover:border-white/40'}`}
+                          className={`w-8 h-8 md:w-10 md:h-10 rounded-lg border flex items-center justify-center text-[10px] font-black transition-all duration-300 relative overflow-hidden ${isUnavailable ? 'bg-white/5 border-white/5 opacity-20' : sel ? 'border-primary scale-110 shadow-glow cursor-pointer' : 'bg-[#120808] border-white/10 hover:border-white/40 cursor-pointer'}`}
                           style={sel ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                         >
                           {!sel && <span className="relative z-10">{isUnavailable ? "X" : num}</span>}
@@ -279,7 +279,7 @@ const SeatBooking = () => {
               <span className="text-[10px] font-black text-primary uppercase tracking-widest">{selectedSeats.length} SEATS SELECTED</span>
               <span className="text-[13px] font-black text-white/60 uppercase mt-1">{selectedSeats.join(", ")}</span>
             </div>
-            <button onClick={handlePayClick} disabled={isSubmitting} className="px-10 md:px-14 py-3 md:py-3.5 bg-primary text-white rounded-xl font-black uppercase text-xs shadow-glow active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+            <button onClick={handlePayClick} disabled={isSubmitting} className="px-10 md:px-14 py-3 md:py-3.5 bg-primary text-white rounded-xl font-black uppercase text-xs shadow-glow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2">
               {isSubmitting ? (
                 <i className="fas fa-circle-notch animate-spin text-sm"></i>
               ) : (
@@ -300,13 +300,13 @@ const SeatBooking = () => {
             <div className="w-full px-6 py-10 flex items-center justify-between border-b border-white/5">
               <button
                 onClick={handleCancelCheckout}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
               >
                 <i className="fas fa-chevron-left text-white/60"></i>
               </button>
               <Link to="/" className="hover:opacity-80 transition-opacity">
                 <h1 className="font-display text-xl md:text-2xl font-black tracking-tighter text-white" style={{ fontFamily: 'Google Sans, sans-serif' }}>
-                  Movie <span className="text-primary">Mokkalu</span>
+                  Movie <span className="text-primary">Mukkalu</span>
                 </h1>
               </Link>
               <div className="w-10"></div> {/* Spacer */}
@@ -366,7 +366,7 @@ const SeatBooking = () => {
 
                 <button
                   type="submit" disabled={isSubmitting}
-                  className="w-full py-4 bg-primary text-white rounded-xl font-black tracking-widest text-sm shadow-glow active:scale-95 transition-all disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-primary text-white rounded-xl font-black tracking-widest text-sm shadow-glow active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer mt-2 flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <i className="fas fa-circle-notch animate-spin text-lg"></i>

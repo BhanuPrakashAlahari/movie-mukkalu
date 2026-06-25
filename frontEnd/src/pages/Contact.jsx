@@ -100,7 +100,7 @@ const Contact = () => {
                     <div className="mt-24 pt-12 border-t border-white/5 text-center flex flex-col items-center">
                         <div className="w-16 h-1 bg-primary mb-8 rounded-full"></div>
                         <p className="text-white/10 font-black uppercase text-[10px] tracking-[0.5em] italic">
-                             PoweredByMovieMokkaluEngineering
+                             PoweredByMovieMukkaluEngineering
                         </p>
                     </div>
                 </div>

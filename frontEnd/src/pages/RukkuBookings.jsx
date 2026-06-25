@@ -159,7 +159,7 @@ const RukkuBookings = () => {
                                                     <td className="px-8 py-6">
                                                         <button 
                                                             onClick={() => handleToggleVisited(booking._id, booking.visited)}
-                                                            className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all duration-300 ${
+                                                            className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all duration-300 cursor-pointer ${
                                                                 booking.visited 
                                                                     ? 'bg-primary border-primary text-white shadow-[0_0_15px_rgba(225,29,72,0.4)]' 
                                                                     : 'bg-white/5 border-white/10 text-white/10 hover:border-primary/50'
@@ -216,7 +216,7 @@ const RukkuBookings = () => {
 
                     <div className="mt-12 flex justify-between items-center text-[10px] font-black text-white/20 uppercase tracking-[0.2em] italic">
                         <span>TotalRecordCount: {filteredBookings.length}</span>
-                        <span>GeneratedByMovieMokkaluCore</span>
+                        <span>GeneratedByMovieMukkaluCore</span>
                     </div>
                 </div>
             </main>

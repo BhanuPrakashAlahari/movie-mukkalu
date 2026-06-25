@@ -22,7 +22,7 @@ const Booking = () => {
       if (foundDate) return foundDate;
     }
     
-    return dates[dates.length - 1]; // Default to the latest date (the new one)
+    return dates[0]; // Default to the first date (March 27th)
   });
 
   const currentShows = MOVIES_DATA[selectedDate.id] || [];
@@ -40,7 +40,7 @@ const Booking = () => {
           <header className="mb-12">
             <button 
               onClick={() => navigate('/')}
-              className="group flex items-center gap-2 text-text-muted hover:text-white transition-colors mb-6"
+              className="group flex items-center gap-2 text-text-muted hover:text-white transition-colors mb-6 cursor-pointer"
             >
               <i className="fas fa-chevron-left text-xs group-hover:text-primary transition-colors"></i>
               <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
@@ -57,7 +57,7 @@ const Booking = () => {
                 <button
                   key={date.id}
                   onClick={() => setSelectedDate(date)}
-                  className={`relative py-4 text-[11px] md:text-sm font-black uppercase tracking-[0.2em] transition-colors duration-300 ${selectedDate.id === date.id ? 'text-white' : 'text-text-muted hover:text-white/60'
+                  className={`relative py-4 text-[11px] md:text-sm font-black uppercase tracking-[0.2em] transition-colors duration-300 cursor-pointer ${selectedDate.id === date.id ? 'text-white' : 'text-text-muted hover:text-white/60'
                     }`}
                 >
                   {date.label}
@@ -110,7 +110,7 @@ const Booking = () => {
                         disabled={movie.status === 'Bookings closed!' || movie.status === 'House Full'}
                         className={`w-full h-9 text-[8px] font-black uppercase tracking-[0.2em] transition-all rounded-lg ${movie.status === 'Bookings closed!' || movie.status === 'House Full'
                             ? 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5 opacity-50'
-                            : 'bg-primary text-white hover:bg-primary-light shadow-glow'
+                            : 'bg-primary text-white hover:bg-primary-light shadow-glow cursor-pointer'
                           }`}
                       >
                         {movie.status === 'Bookings closed!' ? 'Bookings closed!' : movie.status === 'House Full' ? 'House Full' : 'Book Now'}

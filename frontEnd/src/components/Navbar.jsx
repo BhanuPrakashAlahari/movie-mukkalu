@@ -25,8 +25,6 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Book Tickets', path: '/booking' },
-    { name: 'Order Food', path: '/stalls' },
-    { name: 'Contact', path: '/contact' },
   ];
 
   return (
@@ -41,7 +39,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center group">
           <span className="font-display text-xl md:text-2xl font-black tracking-tighter text-white">
-            Movie <span className="text-primary">Mokkalu</span>
+            Movie <span className="text-primary">Mukkalu</span>
           </span>
         </Link>
 
@@ -62,7 +60,7 @@ const Navbar = () => {
         {/* Mobile Hamburger Icon - More refined */}
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden w-12 h-12 flex flex-col items-center justify-center gap-1.5 focus:outline-none bg-white/5 rounded-full border border-white/10"
+          className="md:hidden w-12 h-12 flex flex-col items-center justify-center gap-1.5 focus:outline-none bg-white/5 rounded-full border border-white/10 cursor-pointer"
         >
           <motion.span 
             animate={isOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}

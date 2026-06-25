@@ -1,4 +1,4 @@
-const SESSION_KEY = 'movie_mokkalu_session_id';
+const SESSION_KEY = 'movie_mukkalu_session_id';
 
 /**
  * Get or generate a unique session identifier
