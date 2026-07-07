@@ -5,8 +5,8 @@ let instance = null;
 const getRazorpayInstance = () => {
     if (instance) return instance;
 
-    const key_id = process.env.RAZORPAY_KEY_ID;
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    const key_id = process.env.RAZORPAY_KEY_ID ? process.env.RAZORPAY_KEY_ID.trim() : null;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET ? process.env.RAZORPAY_KEY_SECRET.trim() : null;
 
     if (!key_id || !key_secret) {
         console.error('[RAZORPAY] ERROR: Keys missing in environment variables!');
