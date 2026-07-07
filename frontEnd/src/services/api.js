@@ -11,7 +11,7 @@ const api = axios.create({
   },
 });
 
-// Axios Request Interceptor: Attach Session ID
+
 api.interceptors.request.use(
   (config) => {
     const sessionId = getSessionId();
@@ -67,10 +67,7 @@ export const toggleBookingVisited = async (id, visited) => {
   }
 };
 
-/**
- * Atomic Seat Locking
- * Reserves seats for 10 minutes to prevent double booking.
- */
+
 export const lockSeats = async (dateId, showTime, seatIds, movieName) => {
   try {
     const response = await api.post('/bookings/lock-seats', { dateId, showTime, seatIds, movieName });
@@ -84,9 +81,7 @@ export const lockSeats = async (dateId, showTime, seatIds, movieName) => {
   }
 };
 
-/**
- * Creates a Razorpay Order linked to a BookingSession
- */
+
 export const createRazorpayOrder = async (bookingSessionId) => {
   try {
     const response = await api.post('/bookings/create-order', { bookingSessionId });
@@ -97,9 +92,7 @@ export const createRazorpayOrder = async (bookingSessionId) => {
   }
 };
 
-/**
- * Verifies Razorpay Payment and Finalizes Booking
- */
+
 export const verifyPayment = async (paymentData) => {
   try {
     const response = await api.post('/bookings/verify-payment', paymentData);
@@ -110,9 +103,7 @@ export const verifyPayment = async (paymentData) => {
   }
 };
 
-/**
- * Explicitly cancels a BookingSession and unlocks seats
- */
+
 export const cancelOrder = async (bookingSessionId) => {
   try {
     const response = await api.post('/bookings/cancel-order', { bookingSessionId });

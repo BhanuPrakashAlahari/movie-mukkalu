@@ -14,7 +14,7 @@ const seatLockSchema = new mongoose.Schema({
     required: true,
   },
   lockedBy: {
-    type: String, // Browser sessionId
+    type: String, 
     required: true,
   },
   bookingSessionId: {
@@ -25,12 +25,12 @@ const seatLockSchema = new mongoose.Schema({
   expiresAt: {
     type: Date,
     required: true,
-    index: { expires: 0 } // TTL index: documents will self-delete when expiresAt is reached
+    index: { expires: 0 } 
   }
 }, { timestamps: true });
 
-// Create a unique index for (dateId, showTime, seatId) to prevent double locking
-// However, the logic will handle re-locking and expiry, so we'll use findOneAndUpdate.
+
+
 seatLockSchema.index({ dateId: 1, showTime: 1, seatId: 1 }, { unique: true });
 
 const SeatLock = mongoose.model('SeatLock', seatLockSchema);

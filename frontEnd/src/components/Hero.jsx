@@ -4,11 +4,11 @@ import { motion } from 'framer-motion';
 import { MOVIES_DATA } from '../data/movies';
 
 const Hero = () => {
-  // Get a selection of beautiful movie posters to showcase on the right side
+  
   const showcaseMovies = [
     {
       name: "Salaar",
-      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243294/kushi_ffkvjj.jpg", // Fallback, but let's map them nicely
+      poster: "https://res.cloudinary.com/diipfzmyj/image/upload/v1774243294/kushi_ffkvjj.jpg", 
       rotate: "-6deg",
       y: "10px",
       x: "-20px",
@@ -29,7 +29,7 @@ const Hero = () => {
     }
   ];
 
-  // Let's grab actual posters from the movies database
+  
   const getPoster = (name) => {
     for (const date of Object.keys(MOVIES_DATA)) {
       const match = MOVIES_DATA[date].find(m => m.name === name);
@@ -46,15 +46,15 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 px-[6%] overflow-hidden bg-bg-main">
-      {/* Background Cinematic Glows */}
+      
       <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-primary/10 blur-[150px] rounded-full pointer-events-none animate-pulse-slow"></div>
       <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full pointer-events-none animate-pulse-slow delay-700"></div>
 
-      {/* Subtle grid background texture */}
+      
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)]"></div>
 
       <div className="w-full max-w-7xl mx-auto grid lg:grid-cols-12 gap-16 items-center relative z-10">
-        {/* Left: Premium Typography & CTAs */}
+        
         <div className="lg:col-span-7 text-left flex flex-col items-start">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -91,7 +91,7 @@ const Hero = () => {
           </motion.div>
         </div>
 
-        {/* Right: Interactive Floating Collage of actual movie posters */}
+        
         <div className="lg:col-span-5 hidden md:flex justify-center items-center relative h-[500px] w-full">
           <div className="relative w-[300px] h-[400px]">
             {featuredCollage.map((item, idx) => {

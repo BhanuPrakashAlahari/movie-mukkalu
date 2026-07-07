@@ -5,9 +5,9 @@ const { sendBookingEmail, sendAdminBookingEmail } = require('../utils/emailServi
 const crypto = require('crypto');
 const razorpay = require('../utils/razorpay');
 
-// DYNAMIC LOCK TIMEOUTS
-const INITIAL_LOCK_TIMEOUT = 2 * 60 * 1000; // 2 minutes
-const PAYMENT_LOCK_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+
+const INITIAL_LOCK_TIMEOUT = 2 * 60 * 1000; 
+const PAYMENT_LOCK_TIMEOUT = 5 * 60 * 1000; 
 const TICKET_LIMIT = 6;
 
 const calculatePrice = (count, movieName) => {
@@ -15,10 +15,7 @@ const calculatePrice = (count, movieName) => {
   return count * 1;
 };
 
-/**
- * Get booked/reserved seats using query parameters
- * GET /api/bookings?dateId=...&showTime=...
- */
+
 const getBookedSeats = async (req, res) => {
   try {
     const { dateId, showTime } = req.query;
@@ -49,10 +46,7 @@ const getBookedSeats = async (req, res) => {
   }
 };
 
-/**
- * Admin: Get all bookings (History)
- * GET /api/bookings/rukku-bookings
- */
+
 const getBookingsHistory = async (req, res) => {
   try {
     const allBookings = await TicketBooking.find().sort({ createdAt: -1 });
@@ -63,10 +57,7 @@ const getBookingsHistory = async (req, res) => {
   }
 };
 
-/**
- * Admin: Toggle visited status
- * PUT /api/bookings/:id/visited
- */
+
 const toggleVisitedStatus = async (req, res) => {
   try {
     const { visited } = req.body;
@@ -82,10 +73,7 @@ const toggleVisitedStatus = async (req, res) => {
   }
 };
 
-/**
- * Backward compatibility: Get booked/reserved seats using path parameters
- * GET /api/bookings/:dateId/:showTime
- */
+
 const getBookedSeatsByPath = async (req, res) => {
   try {
     const { dateId, showTime } = req.params;
@@ -112,10 +100,7 @@ const getBookedSeatsByPath = async (req, res) => {
   }
 };
 
-/**
- * Atomic Seat Locking
- * POST /api/bookings/lock-seats
- */
+
 const lockSeats = async (req, res) => {
   const { dateId, showTime, seatIds, movieName } = req.body;
   const sessionId = req.sessionId;
@@ -132,7 +117,7 @@ const lockSeats = async (req, res) => {
     const now = new Date();
     const expiry = new Date(now.getTime() + INITIAL_LOCK_TIMEOUT);
 
-    // 1. Check current availability
+    
     const confirmedBookings = await TicketBooking.find({ dateId, showTime });
     const bookedSeats = confirmedBookings.reduce((acc, b) => [...acc, ...b.seats], []);
 
@@ -152,7 +137,7 @@ const lockSeats = async (req, res) => {
       return res.status(200).json({ success: false, reason: "SEAT_UNAVAILABLE", unavailableSeats: unavailableInRequest });
     }
 
-    // 2. CREATE BookingSession
+    
     const bookingSession = new BookingSession({
       sessionId,
       dateId,
@@ -164,7 +149,7 @@ const lockSeats = async (req, res) => {
     });
     await bookingSession.save();
 
-    // 3. APPLY individual SeatLocks (with native mongo atomic check)
+    
     const failedSeats = [];
     await Promise.all(seatIds.map(async (seatId) => {
       try {
@@ -174,8 +159,8 @@ const lockSeats = async (req, res) => {
             showTime,
             seatId,
             $or: [
-              { lockedBy: sessionId },          // It's already mine (from refresh)
-              { expiresAt: { $lt: now } }       // Or it has expired
+              { lockedBy: sessionId },          
+              { expiresAt: { $lt: now } }       
             ]
           },
           {
@@ -186,13 +171,13 @@ const lockSeats = async (req, res) => {
           { upsert: true, new: true, runValidators: true }
         );
       } catch (err) {
-        // If 11000 Duplicate Key error or filter mismatch, someone else locked it
+        
         failedSeats.push(seatId);
       }
     }));
 
     if (failedSeats.length > 0) {
-      // ROLLBACK: Cleanup any partial success in this batch
+      
       await BookingSession.deleteOne({ _id: bookingSession._id });
       await SeatLock.deleteMany({ bookingSessionId: bookingSession._id });
 
@@ -210,10 +195,7 @@ const lockSeats = async (req, res) => {
   }
 };
 
-/**
- * Step 1: Create a Razorpay Order
- * POST /api/bookings/create-order
- */
+
 const createOrder = async (req, res) => {
   const { bookingSessionId } = req.body;
   const sessionId = req.sessionId;
@@ -226,15 +208,15 @@ const createOrder = async (req, res) => {
       return res.status(403).json({ message: "Session expired or invalid. Please re-select seats." });
     }
 
-    // EXTEND EXPIRY: 5 minutes for payment phase
+    
     const extendedExpiry = new Date(now.getTime() + PAYMENT_LOCK_TIMEOUT);
 
-    // Calculate amount
+    
     const amount = calculatePrice(session.seatIds.length, session.movieName);
 
-    // Create Razorpay order
+    
     const options = {
-      amount: Math.round(amount * 100) + (76 * session.seatIds.length), // convert to paise and add 76 paise per ticket surcharge
+      amount: Math.round(amount * 100) + (76 * session.seatIds.length), 
       currency: "INR",
       receipt: `rcpt_${session._id}`,
       notes: { sessionId, bookingSessionId: session._id.toString() }
@@ -242,13 +224,13 @@ const createOrder = async (req, res) => {
 
     const razorOrder = await razorpay.orders.create(options);
 
-    // UPDATE SESSION
+    
     session.status = 'PAYMENT_PENDING';
     session.orderId = razorOrder.id;
     session.expiresAt = extendedExpiry;
     await session.save();
 
-    // EXTEND individual SeatLocks to match
+    
     await SeatLock.updateMany(
       { bookingSessionId: session._id },
       { expiresAt: extendedExpiry }
@@ -261,10 +243,7 @@ const createOrder = async (req, res) => {
   }
 };
 
-/**
- * Step 2: Finalize Booking After Payment
- * POST /api/bookings/verify-payment
- */
+
 const verifyPayment = async (req, res) => {
   const {
     razorpay_order_id,
@@ -278,7 +257,7 @@ const verifyPayment = async (req, res) => {
       return res.status(400).json({ message: "Missing Razorpay payment identifiers." });
     }
 
-    // Verify Payment Signature
+    
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -289,7 +268,7 @@ const verifyPayment = async (req, res) => {
       return res.status(400).json({ message: "Invalid payment signature." });
     }
 
-    // IDEMPOTENCY CHECK
+    
     const existing = await TicketBooking.findOne({
       $or: [{ orderId: razorpay_order_id }, { paymentId: razorpay_payment_id }]
     });
@@ -298,7 +277,7 @@ const verifyPayment = async (req, res) => {
       return res.status(200).json({ status: "success", booking: existing, message: "Booking recovered." });
     }
 
-    // Fetch Session from DB
+    
     const session = await BookingSession.findOne({ orderId: razorpay_order_id });
     if (!session) {
       return res.status(404).json({ message: "Transaction record missing in database." });
@@ -311,7 +290,7 @@ const verifyPayment = async (req, res) => {
     const { dateId, showTime, seatIds: seats, sessionId: finalSessionId, movieName: sessionMovieName } = session;
     const totalPrice = calculatePrice(seats.length, sessionMovieName) + (0.76 * seats.length);
 
-    // Safely destructure bookingDetails
+    
     const details = bookingDetails || {};
     const name = details.name || "Customer";
     const email = details.email || "no-email@example.com";
@@ -320,7 +299,7 @@ const verifyPayment = async (req, res) => {
     const movieName = details.movieName || "Movie";
     const poster = details.poster || "";
 
-    // ATOMIC SEAT CHECK
+    
     const existingBookings = await TicketBooking.find({ dateId, showTime });
     const allBookedSeats = existingBookings.reduce((acc, b) => [...acc, ...b.seats], []);
 
@@ -336,7 +315,7 @@ const verifyPayment = async (req, res) => {
       return res.status(409).json({ message: "Seats were lost during payment. Contact support with Order ID for refund." });
     }
 
-    // Create AND Save Booking
+    
     const booking = new TicketBooking({
       name,
       email,
@@ -355,16 +334,16 @@ const verifyPayment = async (req, res) => {
 
     const newBooking = await booking.save();
 
-    // Update Session to CONFIRMED
+    
     session.status = 'CONFIRMED';
     await session.save();
 
-    // Release any remaining locks
+    
     await SeatLock.deleteMany({
       bookingSessionId: session._id
     });
 
-    // Send confirmation Emails in parallel
+    
     await Promise.allSettled([
       sendBookingEmail(newBooking),
       sendAdminBookingEmail(newBooking)
@@ -381,10 +360,7 @@ const verifyPayment = async (req, res) => {
   }
 };
 
-/**
- * Step 3: Explicit Order Cancellation/Failure
- * POST /api/bookings/cancel-order
- */
+
 const cancelOrder = async (req, res) => {
   const { bookingSessionId } = req.body;
   const sessionId = req.sessionId;
@@ -399,7 +375,7 @@ const cancelOrder = async (req, res) => {
       session.status = 'FAILED';
       await session.save();
 
-      // Clear the locks
+      
       await SeatLock.deleteMany({
         bookingSessionId: session._id,
         lockedBy: sessionId

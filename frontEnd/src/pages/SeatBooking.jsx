@@ -106,7 +106,7 @@ const SeatBooking = () => {
           ? `Seats ${unavailable.join(', ')} were just taken. Selection updated.` 
           : "Seats unavailable.");
         
-        // Clear all selected seats so user can start a fresh transaction
+        
         setSelectedSeats([]);
         
         fetchBookings(false);
@@ -296,7 +296,7 @@ const SeatBooking = () => {
             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed inset-0 z-[300] bg-[#050101] flex flex-col font-body"
           >
-            {/* Checkout Header */}
+            
             <div className="w-full px-6 py-10 flex items-center justify-between border-b border-white/5">
               <button
                 onClick={handleCancelCheckout}
@@ -309,10 +309,10 @@ const SeatBooking = () => {
                   Movie <span className="text-primary">Mukkalu</span>
                 </h1>
               </Link>
-              <div className="w-10"></div> {/* Spacer */}
+              <div className="w-10"></div> 
             </div>
 
-            {/* Checkout Content */}
+            
             <div className="flex-1 overflow-y-auto px-8 py-10 flex flex-col items-start gap-8">
               <div className="text-left animate-fade-up">
                 <h2 className="text-3xl md:text-4xl font-black text-white  mb-2">Finalize Your Booking</h2>

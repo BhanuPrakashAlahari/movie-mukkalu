@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bookingSessionSchema = new mongoose.Schema({
   sessionId: {
     type: String,
-    required: true, // The browser's UUID session ID
+    required: true, 
     index: true,
   },
   dateId: {
@@ -28,7 +28,7 @@ const bookingSessionSchema = new mongoose.Schema({
     default: 'LOCKED',
   },
   orderId: {
-    type: String, // Link to Razorpay Order
+    type: String, 
     index: true,
     unique: true,
     sparse: true,
@@ -36,7 +36,7 @@ const bookingSessionSchema = new mongoose.Schema({
   expiresAt: {
     type: Date,
     required: true,
-    index: { expires: 0 } // Document self-destructs when expiresAt time is reached
+    index: { expires: 0 } 
   },
 }, { timestamps: true });
 

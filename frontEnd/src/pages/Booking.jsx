@@ -16,13 +16,13 @@ const Booking = () => {
 
   const location = useLocation();
   const [selectedDate, setSelectedDate] = useState(() => {
-    // Check if we have a pre-selected date passed in state
+    
     if (location.state?.selectedDateId) {
       const foundDate = dates.find(d => d.id === location.state.selectedDateId);
       if (foundDate) return foundDate;
     }
     
-    return dates[0]; // Default to the first date (March 27th)
+    return dates[0]; 
   });
 
   const currentShows = MOVIES_DATA[selectedDate.id] || [];
@@ -50,7 +50,7 @@ const Booking = () => {
             </h1>
           </header>
 
-          {/* Tab Style Date Selector */}
+          
           <div className="relative border-b border-white/10 mb-16 overflow-x-auto no-scrollbar">
             <div className="flex gap-10 md:gap-16 min-w-max pb-1">
               {dates.map((date) => (
@@ -73,7 +73,7 @@ const Booking = () => {
             </div>
           </div>
 
-          {/* Show Times Grid */}
+          
           <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
             {currentShows.length > 0 ? (
               currentShows.map((movie, index) => (
@@ -81,7 +81,7 @@ const Booking = () => {
                   key={`${selectedDate.id}-${index}-${movie.name}`}
                   className="flex bg-bg-secondary/40 border border-white/10 rounded-xl overflow-hidden h-[170px] hover:border-white/30 transition-all duration-300 transform hover:-translate-y-1"
                 >
-                  {/* Left Side: Poster */}
+                  
                   <div className="w-[120px] flex-shrink-0 border-r border-white/10">
                     <img
                       src={movie.poster}
@@ -90,7 +90,7 @@ const Booking = () => {
                     />
                   </div>
 
-                  {/* Right Side: Content */}
+                  
                   <div className="flex-1 p-4 flex flex-col justify-between">
                     <div>
                       <span className={`text-[7px] font-black uppercase tracking-[0.2em] block mb-0.5 px-2 py-0.5 w-fit rounded-full leading-none ${movie.status === 'Bookings closed!' || movie.status === 'House Full' ? 'bg-white/10 text-white/40' : 'text-primary bg-primary/10'

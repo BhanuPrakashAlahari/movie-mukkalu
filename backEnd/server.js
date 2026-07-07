@@ -5,8 +5,8 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 1. THE HAMMER: GLOBAL CORS PREFLIGHT PREVENTER 
-// This must be the very first middleware to catch OPTIONS before anything else!
+
+
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -21,13 +21,13 @@ app.use((req, res, next) => {
 const authSession = require('./middleware/authSession');
 app.use(express.json());
 
-// Apply session identity for all API routes
+
 app.use('/api', (req, res, next) => {
-  // 1. Always skip preflight OPTIONS requests (CORS)
+  
   if (req.method === 'OPTIONS') {
     return next();
   }
-  // 2. Skip specific public routes
+  
   if (req.path === '/health' || req.path === '/test-db') {
     return next();
   }
@@ -36,18 +36,18 @@ app.use('/api', (req, res, next) => {
 
 const connectDB = require('./config/db');
 
-// Middleware to ensure DB is connected
+
 app.use(async (req, res, next) => {
   await connectDB();
   next();
 });
 
-// Basic Health Check Route
+
 app.get('/', (req, res) => {
   res.send('Movie Mukkalu Backend is Running...');
 });
 
-// API Routes
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is healthy' });
 });
@@ -65,7 +65,7 @@ app.use('/api/stalls', require('./routes/stalls'));
 
 
 
-// Start Server
+
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port: ${PORT}`);

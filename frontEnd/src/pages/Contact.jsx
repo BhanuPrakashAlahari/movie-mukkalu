@@ -24,7 +24,7 @@ const Contact = () => {
             <Navbar />
 
             <main className="flex-1 pt-32 pb-32 px-[6%] overflow-hidden relative">
-                {/* Visual Orbs */}
+                
                 <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
                 <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
 
@@ -51,7 +51,7 @@ const Contact = () => {
                                 transition={{ delay: index * 0.15, type: "spring", damping: 20 }}
                                 className="group relative"
                             >
-                                {/* Glow Background */}
+                                
                                 <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem]"></div>
                                 
                                 <div className="relative bg-white/5 border border-white/10 p-10 rounded-[2.5rem] backdrop-blur-3xl flex flex-col md:flex-row md:items-center justify-between gap-8 hover:border-white/20 transition-all duration-300">

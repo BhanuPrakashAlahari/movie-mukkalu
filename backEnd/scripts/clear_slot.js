@@ -12,15 +12,15 @@ async function clearSlot() {
     const dateId = '27';
     const showTime = '01-00-PM-04-00-PM';
 
-    // Delete Confirmed Bookings
+    
     const resultBookings = await mongoose.connection.collection('ticketBooking').deleteMany({ dateId, showTime });
     console.log(`Deleted ${resultBookings.deletedCount} confirmed bookings for slot ${dateId} ${showTime}`);
 
-    // Delete Sessions
+    
     const resultSessions = await mongoose.connection.collection('bookingsessions').deleteMany({ dateId, showTime });
     console.log(`Deleted ${resultSessions.deletedCount} sessions`);
 
-    // Delete Seat Locks
+    
     const resultLocks = await mongoose.connection.collection('seatlocks').deleteMany({ dateId, showTime });
     console.log(`Deleted ${resultLocks.deletedCount} seat locks`);
 

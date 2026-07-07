@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-// Create a single transporter instance if environment variables are set
+
 let transporter;
 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   transporter = nodemailer.createTransport({

@@ -34,7 +34,7 @@ const Stalls = () => {
                         transition={{ delay: 0.2 }}
                         className="bg-bg-secondary/40 border border-white/10 p-12 md:p-20 rounded-[3rem] shadow-2xl backdrop-blur-xl relative overflow-hidden group"
                     >
-                        {/* Decorative background element */}
+                        
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors duration-500"></div>
                         
                         <div className="relative z-10 flex flex-col items-center gap-6">

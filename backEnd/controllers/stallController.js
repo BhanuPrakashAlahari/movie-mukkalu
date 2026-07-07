@@ -1,9 +1,6 @@
 const Stall = require('../models/Stall');
 
-/**
- * Get all stalls
- * GET /api/stalls
- */
+
 const getStalls = async (req, res) => {
   try {
     const stalls = await Stall.find().sort({ createdAt: -1 });
@@ -13,10 +10,7 @@ const getStalls = async (req, res) => {
   }
 };
 
-/**
- * Create a new stall
- * POST /api/stalls
- */
+
 const createStall = async (req, res) => {
   const { stallName, ownerName, mobileNumber, email } = req.body;
   

@@ -31,13 +31,13 @@ const About = () => {
 
   return (
     <section id="about" className="pt-32 pb-32 px-[6%] bg-bg-secondary relative overflow-hidden">
-      {/* Background decoration */}
+      
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
       <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
       
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-12 gap-16 items-center">
-          {/* Left Side: Header and core message */}
+          
           <div className="lg:col-span-5 text-left flex flex-col items-start">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary block mb-6 px-1 border-l-2 border-primary ml-1 italic">
               ENGINEERING INTEGRITY

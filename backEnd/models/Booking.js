@@ -49,7 +49,7 @@ const ticketBookingSchema = new mongoose.Schema({
   paymentId: {
     type: String,
     unique: true,
-    sparse: true, // Only enforces uniqueness if the field is present
+    sparse: true, 
     index: true,
   },
   orderId: {
@@ -68,7 +68,7 @@ const ticketBookingSchema = new mongoose.Schema({
   },
 });
 
-// Explicitly naming the collection 'ticketBooking' as requested by the user
+
 const TicketBooking = mongoose.model('TicketBooking', ticketBookingSchema, 'ticketBooking');
 
 module.exports = TicketBooking;

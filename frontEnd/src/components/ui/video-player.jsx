@@ -41,7 +41,7 @@ const CustomSlider = ({ value, onChange, className }) => {
 const VideoPlayer = ({ src }) => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [volume, setVolume] = useState(0); // Muted by default for auto-play
+  const [volume, setVolume] = useState(0); 
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -51,7 +51,7 @@ const VideoPlayer = ({ src }) => {
 
   const isYouTube = src?.includes('youtube.com') || src?.includes('youtu.be');
 
-  // Extract YouTube ID
+  
   const getYTId = (url) => {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -125,7 +125,7 @@ const VideoPlayer = ({ src }) => {
                 allow="autoplay; encrypted-media; picture-in-picture; accelerometer; clipboard-write; gyroscope"
                 allowFullScreen
             />
-            {/* Overlay to catch clicks if we want custom UI over it, but iframe usually captures interaction */}
+            
         </div>
       ) : (
         <>

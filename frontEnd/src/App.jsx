@@ -15,7 +15,7 @@ const App = () => {
       .then(data => console.log('Backend Status:', data.message))
       .catch(err => console.error('Backend Connection Failed:', err));
 
-    // Preload movie posters for better UX
+    
     ALL_POSTERS.forEach((poster) => {
       const img = new Image();
       img.src = poster;

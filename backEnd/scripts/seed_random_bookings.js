@@ -24,14 +24,14 @@ async function seedRandomBookings() {
     const lastRow = 'F';
 
     for (const movie of movies) {
-      // Check if bookings already exist for this movie to avoid over-seeding
+      
       const count = await TicketBooking.countDocuments({ dateId: movie.dateId, showTime: movie.showTime });
       if (count > 0) {
         console.log(`Skipping seeding for ${movie.movieName} (${movie.dateId} ${movie.showTime}), already has bookings.`);
         continue;
       }
 
-      const numBookings = Math.floor(Math.random() * 15) + 10; // 10 to 25 random seats
+      const numBookings = Math.floor(Math.random() * 15) + 10; 
       const bookedSeats = new Set();
 
       while (bookedSeats.size < numBookings) {
@@ -49,7 +49,7 @@ async function seedRandomBookings() {
       }
 
       const seatsArray = Array.from(bookedSeats);
-      // Group seats into chunks of 1 to 4 to simulate real bookings
+      
       let i = 0;
       while (i < seatsArray.length) {
         const chunkSize = Math.floor(Math.random() * 4) + 1;
@@ -64,7 +64,7 @@ async function seedRandomBookings() {
           showTime: movie.showTime,
           displayTime: movie.time,
           seats: chunk,
-          totalPrice: chunk.length * 1, // Current ₹1 price
+          totalPrice: chunk.length * 1, 
           movieName: movie.movieName,
           poster: movie.poster,
           sessionId: 'seeding-' + Math.random().toString(36).substr(2, 9),

@@ -8,7 +8,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = (e) => {
-      // Check window scroll or any element scroll (for pages with internal containers)
+      
       const scrollPos = window.scrollY || (e.target && e.target.scrollTop) || 0;
       
       if (scrollPos > 10) {
@@ -18,7 +18,7 @@ const Navbar = () => {
       }
     };
 
-    // Use capture: true to listen for scroll events on inner scrollable containers
+    
     window.addEventListener('scroll', handleScroll, true);
     return () => window.removeEventListener('scroll', handleScroll, true);
   }, []);
@@ -36,14 +36,14 @@ const Navbar = () => {
           ? 'bg-white/[0.02] backdrop-blur-2xl border-b border-white/10 md:rounded-[2.5rem] md:mt-4 md:border md:shadow-[0_8px_32px_0_rgba(0,0,0,0.8)]' 
           : 'bg-transparent border-transparent'
       }`}>
-        {/* Logo */}
+        
         <Link to="/" className="flex items-center group">
           <span className="font-display text-xl md:text-2xl font-black tracking-tighter text-white">
             Movie <span className="text-primary">Mukkalu</span>
           </span>
         </Link>
 
-        {/* Desktop Links */}
+        
         <div className="hidden md:flex items-center gap-10">
           {navLinks.map((link) => (
             <Link
@@ -57,7 +57,7 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Mobile Hamburger Icon - More refined */}
+        
         <button 
           onClick={() => setIsOpen(!isOpen)}
           className="md:hidden w-12 h-12 flex flex-col items-center justify-center gap-1.5 focus:outline-none bg-white/5 rounded-full border border-white/10 cursor-pointer"
@@ -77,7 +77,7 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu Overlay - Full Width and Premium */}
+      
       <AnimatePresence>
         {isOpen && (
           <motion.div

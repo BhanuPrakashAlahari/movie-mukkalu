@@ -11,7 +11,7 @@ const RukkuBookings = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMovie, setSelectedMovie] = useState('AllMovies');
 
-    // Extract unique movie names from MOVIES_DATA
+    
     const movieNames = ['AllMovies', ...new Set(Object.values(MOVIES_DATA).flat().map(m => m.name))];
 
     useEffect(() => {
@@ -31,13 +31,13 @@ const RukkuBookings = () => {
     const handleToggleVisited = async (id, currentStatus) => {
         try {
             const newStatus = !currentStatus;
-            // Optimistic Update
+            
             setBookings(prev => prev.map(b => b._id === id ? { ...b, visited: newStatus } : b));
             
             await toggleBookingVisited(id, newStatus);
         } catch (error) {
             console.error('FailedToToggleVisited:', error);
-            // Revert on error
+            
             setBookings(prev => prev.map(b => b._id === id ? { ...b, visited: currentStatus } : b));
         }
     };
@@ -65,7 +65,7 @@ const RukkuBookings = () => {
             <Navbar />
 
             <main className="flex-1 pt-32 pb-20 px-[6%] relative overflow-hidden">
-                {/* Visual Glows */}
+                
                 <div className="absolute top-1/4 -right-20 w-96 h-96 bg-primary/10 blur-[120px] rounded-full pointer-events-none animate-pulse-slow"></div>
                 <div className="absolute bottom-1/4 -left-20 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none animate-pulse-slow delay-1000"></div>
 
@@ -99,7 +99,7 @@ const RukkuBookings = () => {
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                            {/* Movie Filter */}
+                            
                             <div className="relative w-full md:w-64">
                                 <select 
                                     value={selectedMovie}
@@ -113,7 +113,7 @@ const RukkuBookings = () => {
                                 <i className="fas fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-primary/60 pointer-events-none text-[10px]"></i>
                             </div>
 
-                            {/* Search */}
+                            
                             <div className="relative w-full md:w-64">
                                 <input 
                                     type="text"
