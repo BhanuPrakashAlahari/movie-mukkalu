@@ -1,6 +1,7 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const mongoose = require('mongoose');
-const TicketBooking = require('./models/Booking');
+const TicketBooking = require('../models/Booking');
 
 async function seedRandomBookings() {
   try {

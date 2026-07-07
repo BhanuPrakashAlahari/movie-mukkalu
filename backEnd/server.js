@@ -34,19 +34,7 @@ app.use('/api', (req, res, next) => {
   authSession(req, res, next);
 });
 
-// MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI;
-
-const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) return;
-  
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected to MongoDB');
-  } catch (err) {
-    console.error('Could not connect to MongoDB:', err);
-  }
-};
+const connectDB = require('./config/db');
 
 // Middleware to ensure DB is connected
 app.use(async (req, res, next) => {

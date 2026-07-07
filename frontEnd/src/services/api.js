@@ -67,36 +67,6 @@ export const toggleBookingVisited = async (id, visited) => {
   }
 };
 
-export const createBooking = async (bookingData) => {
-  try {
-    const response = await api.post('/bookings', bookingData);
-    return response.data;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
-  }
-};
-
-export const getStalls = async () => {
-  try {
-    const response = await api.get('/stalls');
-    return response.data;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
-  }
-};
-
-export const createStall = async (stallData) => {
-  try {
-    const response = await api.post('/stalls', stallData);
-    return response.data;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
-  }
-};
-
 /**
  * Atomic Seat Locking
  * Reserves seats for 10 minutes to prevent double booking.
