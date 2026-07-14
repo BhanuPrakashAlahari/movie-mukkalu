@@ -114,5 +114,15 @@ export const cancelOrder = async (bookingSessionId) => {
   }
 };
 
+export const getMovies = async () => {
+  try {
+    const response = await api.get('/movies');
+    return response.data;
+  } catch (error) {
+    console.error('Fetch movies API error:', error);
+    throw error;
+  }
+};
+
 export default api;
 

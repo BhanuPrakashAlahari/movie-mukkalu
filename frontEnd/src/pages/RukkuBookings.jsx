@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getRukkuBookings, toggleBookingVisited } from '../services/api';
-import { MOVIES_DATA } from '../data/movies';
+import { useMovies } from '../context/MovieContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -11,8 +11,8 @@ const RukkuBookings = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMovie, setSelectedMovie] = useState('AllMovies');
 
-    
-    const movieNames = ['AllMovies', ...new Set(Object.values(MOVIES_DATA).flat().map(m => m.name))];
+    const { moviesData, loading: moviesLoading } = useMovies();
+    const movieNames = moviesLoading ? ['AllMovies'] : ['AllMovies', ...new Set(Object.values(moviesData).flat().map(m => m.name))];
 
     useEffect(() => {
         const fetchAll = async () => {

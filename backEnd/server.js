@@ -61,6 +61,7 @@ app.get('/api/test-db', (req, res) => {
 });
 
 app.use('/api/bookings', require('./routes/bookings'));
+app.use('/api/movies', require('./routes/movies'));
 
 
 

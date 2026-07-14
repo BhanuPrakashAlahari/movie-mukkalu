@@ -3,19 +3,36 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import VideoPlayer from '../components/ui/video-player';
 import { getBookedSeats, lockSeats, createRazorpayOrder, verifyPayment, cancelOrder } from '../services/api';
-import { MOVIES_DATA } from '../data/movies';
+import { useMovies } from '../context/MovieContext';
 
 const SeatBooking = () => {
   const { dateId, showTime } = useParams();
   const navigate = useNavigate();
+  const { moviesData, loading } = useMovies();
 
-  const currentMovie = MOVIES_DATA[dateId]?.find(m => m.slug === showTime);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-bg-main flex flex-col justify-center items-center text-white selection:bg-primary selection:text-white">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/60 font-black uppercase tracking-[0.2em] text-[10px]">Loading Show Details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentMovie = moviesData[dateId]?.find(m => m.slug === showTime);
   const movieName = currentMovie?.name || "Movie";
   const poster = currentMovie?.bookingPoster || currentMovie?.poster || "";
   const trailerUrl = currentMovie?.trailer || "";
 
   useEffect(() => {
-    if (currentMovie?.status === 'Bookings closed!') {
+    if (!currentMovie) {
+      alert("Invalid show selected.");
+      navigate('/booking');
+      return;
+    }
+    if (currentMovie.status === 'Bookings closed!') {
       alert("Bookings are closed for this show.");
       navigate('/booking', { state: { selectedDateId: parseInt(dateId) } });
     }

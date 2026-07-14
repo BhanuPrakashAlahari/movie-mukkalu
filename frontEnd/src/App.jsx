@@ -7,35 +7,30 @@ import Promotions from './pages/Promotions';
 import RukkuBookings from './pages/RukkuBookings';
 
 import { checkHealth } from './services/api';
-import { ALL_POSTERS } from './data/movies';
+import { MovieProvider } from './context/MovieContext';
 
 const App = () => {
   useEffect(() => {
     checkHealth()
       .then(data => console.log('Backend Status:', data.message))
       .catch(err => console.error('Backend Connection Failed:', err));
-
-    
-    ALL_POSTERS.forEach((poster) => {
-      const img = new Image();
-      img.src = poster;
-    });
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/booking" element={<Booking />} />
-        <Route path="/booking/:dateId/:showTime" element={<SeatBooking />} />
+    <MovieProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/booking" element={<Booking />} />
+          <Route path="/booking/:dateId/:showTime" element={<SeatBooking />} />
 
-        <Route path="/promotions" element={<Promotions />} />
+          <Route path="/promotions" element={<Promotions />} />
 
-        <Route path="/rukkuBookings" element={<RukkuBookings />} />
-      </Routes>
-    </Router>
+          <Route path="/rukkuBookings" element={<RukkuBookings />} />
+        </Routes>
+      </Router>
+    </MovieProvider>
   );
 };
-
 
 export default App;

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MOVIES_DATA } from '../data/movies';
+import { useMovies } from '../context/MovieContext';
 
 const Hero = () => {
+  const { moviesData, loading } = useMovies();
   
   const showcaseMovies = [
     {
@@ -31,8 +32,9 @@ const Hero = () => {
 
   
   const getPoster = (name) => {
-    for (const date of Object.keys(MOVIES_DATA)) {
-      const match = MOVIES_DATA[date].find(m => m.name === name);
+    if (loading) return "";
+    for (const date of Object.keys(moviesData)) {
+      const match = moviesData[date]?.find(m => m.name === name);
       if (match) return match.poster;
     }
     return "";

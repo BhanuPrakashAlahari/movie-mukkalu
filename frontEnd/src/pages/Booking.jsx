@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { MOVIES_DATA } from '../data/movies';
+import { useMovies } from '../context/MovieContext';
 
 const Booking = () => {
   const navigate = useNavigate();
+  const { moviesData, loading } = useMovies();
+  
   const dates = [
     { id: 27, label: 'MARCH 27', full: 'March 27th, 2026' },
     { id: 28, label: 'MARCH 28', full: 'March 28th, 2026' },
@@ -25,7 +27,22 @@ const Booking = () => {
     return dates[0]; 
   });
 
-  const currentShows = MOVIES_DATA[selectedDate.id] || [];
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-bg-main flex flex-col justify-between text-white selection:bg-primary selection:text-white">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center pt-32">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-white/60 font-black uppercase tracking-[0.2em] text-[10px]">Loading Shows...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const currentShows = moviesData[selectedDate.id] || [];
 
   const handleSelectSeats = (showTimeSlug) => {
     navigate(`/booking/${selectedDate.id}/${showTimeSlug}`);
