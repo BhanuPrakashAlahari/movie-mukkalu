@@ -113,14 +113,6 @@ All API requests expect the header `x-session-id: <UUID>` for session tracking.
 | **POST** | `/api/bookings/cancel-order` | Manually cancel order and release seat locks immediately. | `{"bookingSessionId": "SESSION_ID"}` | `{"message": "Seats released"}` (Status 200) |
 | **GET** | `/api/bookings/rukku-bookings` | Admin: Retrieve historical records (Sorted newest first). | *None* | `[BookingObjects]` (Status 200) |
 | **PUT** | `/api/bookings/:id/visited` | Admin: Toggle checked-in/visited status. | `{"visited": true}` | Updated Booking Object (Status 200) |
-
-### Stall Endpoints
-
-| Method | Endpoint | Description | Request Body | Success Response |
-| :--- | :--- | :--- | :--- | :--- |
-| **GET** | `/api/stalls` | Retrieve all registered food stalls. | *None* | `[StallObjects]` (Status 200) |
-| **POST** | `/api/stalls` | Register a new food stall. | `{"stallName": "...", "ownerName": "...", "mobileNumber": "...", "email": "..."}` | Registered Stall Object (Status 201) |
-
 ---
 
 ## ⚙️ Configuration & Environment Variables
